@@ -34,6 +34,8 @@ class StoneMaskArmorRenderer : ArmorRenderer {
         }
     }
 
+
+
     override fun render(
         matrices: PoseStack,
         vertexConsumers: MultiBufferSource,
@@ -49,15 +51,14 @@ class StoneMaskArmorRenderer : ArmorRenderer {
 
         val maskModel = getModel()
 
-        // Copy properties from context model to our mask model
         maskModel.copyFrom(contextModel)
 
+        val activated = stack.getOrDefault(NyctoStoneMask.MASK_STATE, NyctoStoneMask.MaskData())
 
+        maskModel.playAnimation(activated.maskState)
 
-        // Set up the model animation with the render state
         maskModel.setupAnim(renderState)
 
-        // Render the main mask
         val vertexConsumer = ItemRenderer.getArmorFoilBuffer(
             vertexConsumers,
             RenderType.armorCutoutNoCull(TEXTURE),

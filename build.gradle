@@ -40,6 +40,7 @@ dependencies {
 
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
 	modImplementation "moriyashiine:strawberrylib:${strawberrylib_version}"
+	modImplementation "moriyashiine:nycto:1.21.8-b1"
 
 	modCompileOnly("moriyashiine:hearty-meals:${hearty_meals_version}") {
 		exclude("group": "*")

@@ -2,27 +2,29 @@ package dev.sterner.payload
 
 import dev.sterner.NyctoStoneMask
 import io.netty.buffer.ByteBuf
-import net.minecraft.network.FriendlyByteBuf
-import net.minecraft.network.codec.StreamCodec
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload
-import net.minecraft.resources.Identifier
+import net.minecraft.network.PacketByteBuf
+import net.minecraft.network.codec.PacketCodec
+import net.minecraft.network.packet.CustomPayload
+import net.minecraft.util.Identifier
 import java.util.UUID
 
 data class StoneMaskAnimationPayload(
     val playerUuid: UUID
-) : CustomPacketPayload {
+) : CustomPayload {
 
     companion object {
-        val ID = CustomPacketPayload.Type<StoneMaskAnimationPayload>(
-            Identifier.fromNamespaceAndPath(NyctoStoneMask.MODID, "stone_mask_animation")
+        val ID = CustomPayload.Id<StoneMaskAnimationPayload>(
+            Identifier.of(NyctoStoneMask.MODID, "stone_mask_animation")
         )
-        val CODEC: StreamCodec<ByteBuf, StoneMaskAnimationPayload> = object : StreamCodec<ByteBuf, StoneMaskAnimationPayload> {
-            override fun decode(buffer: ByteBuf) = StoneMaskAnimationPayload(FriendlyByteBuf(buffer).readUUID())
+        val CODEC: PacketCodec<ByteBuf, StoneMaskAnimationPayload> = object : PacketCodec<ByteBuf, StoneMaskAnimationPayload> {
+            override fun decode(buffer: ByteBuf) = StoneMaskAnimationPayload(PacketByteBuf(buffer).readUuid())
             override fun encode(buffer: ByteBuf, payload: StoneMaskAnimationPayload) {
-                FriendlyByteBuf(buffer).writeUUID(payload.playerUuid)
+                PacketByteBuf(buffer).writeUuid(payload.playerUuid)
             }
         }
     }
 
-    override fun type() = ID
+    override fun getId(): CustomPayload.Id<out CustomPayload?>? {
+        return ID
+    }
 }

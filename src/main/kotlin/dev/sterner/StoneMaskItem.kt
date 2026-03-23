@@ -1,24 +1,25 @@
 package dev.sterner
 
-import net.minecraft.server.level.ServerLevel
-import net.minecraft.world.entity.Entity
-import net.minecraft.world.entity.EquipmentSlot
-import net.minecraft.world.entity.player.Player
-import net.minecraft.world.item.Item
-import net.minecraft.world.item.ItemStack
+import moriyashiine.nycto.api.NyctoAPI
+import net.minecraft.entity.Entity
+import net.minecraft.entity.EquipmentSlot
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.item.Item
+import net.minecraft.item.ItemStack
+import net.minecraft.server.world.ServerWorld
 import java.util.UUID
 
-class StoneMaskItem : Item(Properties()) {
+class StoneMaskItem(settings: Settings) : Item(settings) {
 
     override fun inventoryTick(
         itemStack: ItemStack,
-        serverLevel: ServerLevel,
+        serverLevel: ServerWorld,
         entity: Entity,
         equipmentSlot: EquipmentSlot?
     ) {
         super.inventoryTick(itemStack, serverLevel, entity, equipmentSlot)
 
-        if (entity is Player) {
+        if (entity is PlayerEntity) {
             val current = getOwnerUUID(itemStack)
             if (current != entity.uuid) {
                 itemStack.set(NyctoStoneMask.UUID_DATA, entity.uuid)

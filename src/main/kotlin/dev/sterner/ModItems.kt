@@ -2,19 +2,27 @@ package dev.sterner
 
 import moriyashiine.nycto.common.init.ModArmorMaterials
 import moriyashiine.strawberrylib.api.module.SLibRegistries.registerItem
-import net.minecraft.world.item.CreativeModeTab
-import net.minecraft.world.item.Item
-import net.minecraft.world.item.equipment.ArmorType
+import moriyashiine.strawberrylib.impl.common.StrawberryLib
+import net.minecraft.item.Item
+import net.minecraft.item.Items
+import net.minecraft.item.equipment.EquipmentType
+import net.minecraft.registry.RegistryKey
+import net.minecraft.registry.RegistryKeys
 
 
 class ModItems {
 
-    var GROUP: CreativeModeTab? = null
 
     companion object {
-        public val STONE_MASK: Item =
-            registerItem("stone_mask", Item.Properties().humanoidArmor(ModArmorMaterials.VAMPIRE, ArmorType.HELMET))
 
+        val STONE_MASK: StoneMaskItem = registerItem(
+            "stone_mask",
+            ::StoneMaskItem,
+            Item.Settings()
+                .armor(
+                    ModArmorMaterials.VAMPIRE, EquipmentType.HELMET)
+                .maxCount(1)
+        ) as StoneMaskItem
     }
 
 

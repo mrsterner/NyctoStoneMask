@@ -1,19 +1,15 @@
 package dev.sterner
 
 import moriyashiine.nycto.common.Nycto
-import net.minecraft.client.animation.AnimationDefinition
-import net.minecraft.client.animation.KeyframeAnimations
-import net.minecraft.client.model.HumanoidModel
-import net.minecraft.client.model.geom.ModelLayerLocation
-import net.minecraft.client.model.geom.ModelPart
-import net.minecraft.client.model.geom.PartPose
-import net.minecraft.client.model.geom.builders.*
-import net.minecraft.client.renderer.entity.ArmorModelSet
-import net.minecraft.client.renderer.entity.state.HumanoidRenderState
-import net.minecraft.world.entity.AnimationState
+import net.minecraft.client.model.*
+import net.minecraft.client.render.entity.model.BipedEntityModel
+import net.minecraft.client.render.entity.model.EntityModelLayer
+import net.minecraft.client.render.entity.model.EquipmentModelData
+import net.minecraft.client.render.entity.state.BipedEntityRenderState
+import net.minecraft.util.math.MathHelper
 
 
-class StoneMaskModel<T : HumanoidRenderState>(root: ModelPart) : HumanoidModel<T>(root) {
+class StoneMaskModel<T : BipedEntityRenderState>(root: ModelPart) : BipedEntityModel<T>(root) {
 
     private val armorHead: ModelPart = root.getChild("armorHead")
     private val lPlate: ModelPart = armorHead.getChild("lPlate")
@@ -31,171 +27,177 @@ class StoneMaskModel<T : HumanoidRenderState>(root: ModelPart) : HumanoidModel<T
     private val mClaw: ModelPart = armorHead.getChild("mClaw")
     private val decorations: ModelPart = armorHead.getChild("decorations")
 
-    private val armorBody: ModelPart = root.getChild("armorBody")
-    private val armorRightArm: ModelPart = root.getChild("armorRightArm")
-    private val armorLeftArm: ModelPart = root.getChild("armorLeftArm")
-    private val armorLeftLeg: ModelPart = root.getChild("armorLeftLeg")
-    private val armorLeftBoot: ModelPart = root.getChild("armorLeftBoot")
-    private val armorRightLeg: ModelPart = root.getChild("armorRightLeg")
-    private val armorRightBoot: ModelPart = root.getChild("armorRightBoot")
+    var animationApplier: (() -> Unit)? = null
 
-
+    override fun setAngles(bipedEntityRenderState: T) {
+        super.setAngles(bipedEntityRenderState)
+        armorHead.pitch = Math.toRadians(bipedEntityRenderState.pitch.toDouble()).toFloat()
+        armorHead.yaw = Math.toRadians(bipedEntityRenderState.relativeHeadYaw.toDouble()).toFloat()
+        animationApplier?.invoke()
+    }
 
     companion object {
 
-        val MODEL_LAYERS: ArmorModelSet<ModelLayerLocation> = ArmorModelSet(
+        val MODEL_LAYERS: EquipmentModelData<EntityModelLayer> = EquipmentModelData(
             "helmet",
             "chestplate",
             "leggings",
             "boots"
-        ).map({ s -> ModelLayerLocation(Nycto.id("stone_mask"), s) })
+        ).map({ s -> EntityModelLayer(Nycto.id("stone_mask"), s) })
 
-
-        fun createBodyLayer(): LayerDefinition {
-            val meshDefinition = createMesh(CubeDeformation.NONE, 0.0f)
+        fun createBodyLayer(): TexturedModelData {
+            val meshDefinition = getModelData(Dilation.NONE, 0.0f)
             val partDefinition = meshDefinition.root
 
-            val armorHead = partDefinition.addOrReplaceChild(
+            val armorHead = partDefinition.addChild(
                 "armorHead",
-                CubeListBuilder.create(),
-                PartPose.offset(0f, 0f, 0f)
+                ModelPartBuilder.create(),
+                ModelTransform.origin(0f, 0f, 0f)
             )
 
-            val lPlate = armorHead.addOrReplaceChild(
+            partDefinition.addChild("hat", ModelPartBuilder.create(), ModelTransform.NONE)
+            partDefinition.addChild("body", ModelPartBuilder.create(), ModelTransform.NONE)
+            partDefinition.addChild("right_arm", ModelPartBuilder.create(), ModelTransform.NONE)
+            partDefinition.addChild("left_arm", ModelPartBuilder.create(), ModelTransform.NONE)
+            partDefinition.addChild("right_leg", ModelPartBuilder.create(), ModelTransform.NONE)
+            partDefinition.addChild("left_leg", ModelPartBuilder.create(), ModelTransform.NONE)
+
+
+            val lPlate = armorHead.addChild(
                 "lPlate",
-                CubeListBuilder.create()
-                    .texOffs(96, 6)
-                    .mirror()
-                    .addBox(-0.95f, -8.25f, -5.0f, 5f, 6f, 2f, CubeDeformation(-0.1f))
-                    .mirror(false),
-                PartPose.offsetAndRotation(0.25f, 0.25f, -0.25f, -0.0436f, -0.1309f, 0f)
+                ModelPartBuilder.create()
+                    .uv(96, 6)
+                    .mirrored()
+                    .cuboid(-0.95f, -8.25f, -5.0f, 5f, 6f, 2f, Dilation(-0.1f))
+                    .mirrored(false),
+                ModelTransform.of(0.25f, 0.25f, -0.25f, -0.0436f, -0.1309f, 0f)
             )
 
-            lPlate.addOrReplaceChild(
+            lPlate.addChild(
                 "cube_r1",
-                CubeListBuilder.create()
-                    .texOffs(96, 16)
-                    .mirror()
-                    .addBox(-1.2f, -1.5f, -1.25f, 4f, 3f, 2f, CubeDeformation(0.1f))
-                    .mirror(false),
-                PartPose.offsetAndRotation(0.45f, -1.1539f, -3.1819f, 0.2618f, 0f, 0f)
+                ModelPartBuilder.create()
+                    .uv(96, 16)
+                    .mirrored()
+                    .cuboid(-1.2f, -1.5f, -1.25f, 4f, 3f, 2f, Dilation(0.1f))
+                    .mirrored(false),
+                ModelTransform.of(0.45f, -1.1539f, -3.1819f, 0.2618f, 0f, 0f)
             )
 
-            val blood = lPlate.addOrReplaceChild(
+            val blood = lPlate.addChild(
                 "blood",
-                CubeListBuilder.create()
-                    .texOffs(112, 14)
-                    .mirror()
-                    .addBox(-0.95f, -8.25f, -5.0f, 5f, 6f, 2f, CubeDeformation(-0.05f))
-                    .mirror(false),
-                PartPose.offset(0f, 0f, 0f)
+                ModelPartBuilder.create()
+                    .uv(112, 14)
+                    .mirrored()
+                    .cuboid(-0.95f, -8.25f, -5.0f, 5f, 6f, 2f, Dilation(-0.05f))
+                    .mirrored(false),
+                ModelTransform.origin(0f, 0f, 0f)
             )
 
-            blood.addOrReplaceChild(
+            blood.addChild(
                 "cube_r2",
-                CubeListBuilder.create()
-                    .texOffs(116, 24)
-                    .mirror()
-                    .addBox(-1.2f, -1.5f, -1.5f, 4f, 3f, 2f, CubeDeformation(-0.05f))
-                    .mirror(false),
-                PartPose.offsetAndRotation(0.25f, -1.2747f, -3.1741f, 0.2618f, 0f, 0f)
+                ModelPartBuilder.create()
+                    .uv(116, 24)
+                    .mirrored()
+                    .cuboid(-1.2f, -1.5f, -1.5f, 4f, 3f, 2f, Dilation(-0.05f))
+                    .mirrored(false),
+                ModelTransform.of(0.25f, -1.2747f, -3.1741f, 0.2618f, 0f, 0f)
             )
 
-            val rPlate = armorHead.addOrReplaceChild(
+            val rPlate = armorHead.addChild(
                 "rPlate",
-                CubeListBuilder.create()
-                    .texOffs(96, 6)
-                    .addBox(-4.05f, -8.25f, -5.0f, 5f, 6f, 2f, CubeDeformation(-0.1f)),
-                PartPose.offsetAndRotation(-0.25f, 0.25f, -0.25f, -0.0436f, 0.1309f, 0f)
+                ModelPartBuilder.create()
+                    .uv(96, 6)
+                    .cuboid(-4.05f, -8.25f, -5.0f, 5f, 6f, 2f, Dilation(-0.1f)),
+                ModelTransform.of(-0.25f, 0.25f, -0.25f, -0.0436f, 0.1309f, 0f)
             )
 
-            val cube_r3: PartDefinition? = rPlate.addOrReplaceChild(
+            val cube_r3: ModelPartData? = rPlate.addChild(
                 "cube_r3",
-                CubeListBuilder.create().texOffs(96, 16)
-                    .addBox(-2.8f, -1.5f, -1.25f, 4.0f, 3.0f, 2.0f, CubeDeformation(0.1f)),
-                PartPose.offsetAndRotation(-0.45f, -1.1539f, -3.1819f, 0.2618f, 0.0f, 0.0f)
+                ModelPartBuilder.create().uv(96, 16)
+                    .cuboid(-2.8f, -1.5f, -1.25f, 4.0f, 3.0f, 2.0f, Dilation(0.1f)),
+                ModelTransform.of(-0.45f, -1.1539f, -3.1819f, 0.2618f, 0.0f, 0.0f)
             )
 
-            val lClaw02 = armorHead.addOrReplaceChild(
+            val lClaw02 = armorHead.addChild(
                 "lClaw02",
-                CubeListBuilder.create().texOffs(96, 41)
-                    .addBox(-3.5f, -1.0f, 0.0f, 4.0f, 1.0f, 7.0f, CubeDeformation(-0.1f)),
-                PartPose.offset(4.0f, -3.5f, -2.75f)
+                ModelPartBuilder.create().uv(96, 41)
+                    .cuboid(-3.5f, -1.0f, 0.0f, 4.0f, 1.0f, 7.0f, Dilation(-0.1f)),
+                ModelTransform.origin(4.0f, -3.5f, -2.75f)
             )
 
-            val rClaw02 = armorHead.addOrReplaceChild(
+            val rClaw02 = armorHead.addChild(
                 "rClaw02",
-                CubeListBuilder.create().texOffs(96, 41).mirror()
-                    .addBox(-0.5f, -1.0f, 0.0f, 4.0f, 1.0f, 7.0f, CubeDeformation(-0.1f)).mirror(false),
-                PartPose.offset(-4.0f, -3.5f, -2.75f)
+                ModelPartBuilder.create().uv(96, 41).mirrored()
+                    .cuboid(-0.5f, -1.0f, 0.0f, 4.0f, 1.0f, 7.0f, Dilation(-0.1f)).mirrored(false),
+                ModelTransform.origin(-4.0f, -3.5f, -2.75f)
             )
 
-            val lClaw01 = armorHead.addOrReplaceChild(
+            val lClaw01 = armorHead.addChild(
                 "lClaw01",
-                CubeListBuilder.create().texOffs(95, 27)
-                    .addBox(-3.5f, -1.0f, 0.0f, 4.0f, 1.0f, 8.0f, CubeDeformation(-0.1f)),
-                PartPose.offset(4.0f, -1.0f, -3.75f)
+                ModelPartBuilder.create().uv(95, 27)
+                    .cuboid(-3.5f, -1.0f, 0.0f, 4.0f, 1.0f, 8.0f, Dilation(-0.1f)),
+                ModelTransform.origin(4.0f, -1.0f, -3.75f)
             )
 
-            val rClaw01 = armorHead.addOrReplaceChild(
+            val rClaw01 = armorHead.addChild(
                 "rClaw01",
-                CubeListBuilder.create().texOffs(95, 27).mirror()
-                    .addBox(-0.5f, -1.0f, 0.0f, 4.0f, 1.0f, 8.0f, CubeDeformation(-0.1f)).mirror(false),
-                PartPose.offset(-4.0f, -1.0f, -3.75f)
+                ModelPartBuilder.create().uv(95, 27).mirrored()
+                    .cuboid(-0.5f, -1.0f, 0.0f, 4.0f, 1.0f, 8.0f, Dilation(-0.1f)).mirrored(false),
+                ModelTransform.origin(-4.0f, -1.0f, -3.75f)
             )
 
-            val lClaw03 = armorHead.addOrReplaceChild(
+            val lClaw03 = armorHead.addChild(
                 "lClaw03",
-                CubeListBuilder.create().texOffs(96, 41)
-                    .addBox(-3.5f, -1.0f, 0.0f, 4.0f, 1.0f, 7.0f, CubeDeformation(-0.1f)),
-                PartPose.offset(4.0f, -6.0f, -2.75f)
+                ModelPartBuilder.create().uv(96, 41)
+                    .cuboid(-3.5f, -1.0f, 0.0f, 4.0f, 1.0f, 7.0f, Dilation(-0.1f)),
+                ModelTransform.origin(4.0f, -6.0f, -2.75f)
             )
 
-            val rClaw03 = armorHead.addOrReplaceChild(
+            val rClaw03 = armorHead.addChild(
                 "rClaw03",
-                CubeListBuilder.create().texOffs(96, 41).mirror()
-                    .addBox(-0.5f, -1.0f, 0.0f, 4.0f, 1.0f, 7.0f, CubeDeformation(-0.1f)).mirror(false),
-                PartPose.offset(-4.0f, -6.0f, -2.75f)
+                ModelPartBuilder.create().uv(96, 41).mirrored()
+                    .cuboid(-0.5f, -1.0f, 0.0f, 4.0f, 1.0f, 7.0f, Dilation(-0.1f)).mirrored(false),
+                ModelTransform.origin(-4.0f, -6.0f, -2.75f)
             )
 
-            val lClaw04 = armorHead.addOrReplaceChild(
+            val lClaw04 = armorHead.addChild(
                 "lClaw04",
-                CubeListBuilder.create().texOffs(99, 53)
-                    .addBox(-1.0f, -0.5f, -0.01f, 1.0f, 4.0f, 7.0f, CubeDeformation(-0.1f)),
-                PartPose.offset(2.5f, -8.0f, -2.75f)
+                ModelPartBuilder.create().uv(99, 53)
+                    .cuboid(-1.0f, -0.5f, -0.01f, 1.0f, 4.0f, 7.0f, Dilation(-0.1f)),
+                ModelTransform.origin(2.5f, -8.0f, -2.75f)
             )
 
-            val rClaw04 = armorHead.addOrReplaceChild(
+            val rClaw04 = armorHead.addChild(
                 "rClaw04",
-                CubeListBuilder.create().texOffs(99, 53).mirror()
-                    .addBox(0.0f, -0.5f, -0.01f, 1.0f, 4.0f, 7.0f, CubeDeformation(-0.1f)).mirror(false),
-                PartPose.offset(-2.5f, -8.0f, -2.75f)
+                ModelPartBuilder.create().uv(99, 53).mirrored()
+                    .cuboid(0.0f, -0.5f, -0.01f, 1.0f, 4.0f, 7.0f, Dilation(-0.1f)).mirrored(false),
+                ModelTransform.origin(-2.5f, -8.0f, -2.75f)
             )
 
-            val mClaw = armorHead.addOrReplaceChild(
+            val mClaw = armorHead.addChild(
                 "mClaw",
-                CubeListBuilder.create().texOffs(99, 53)
-                    .addBox(-0.5f, -0.5f, -0.01f, 1.0f, 4.0f, 7.0f, CubeDeformation(-0.1f)),
-                PartPose.offset(0.0f, -8.0f, -2.75f)
+                ModelPartBuilder.create().uv(99, 53)
+                    .cuboid(-0.5f, -0.5f, -0.01f, 1.0f, 4.0f, 7.0f, Dilation(-0.1f)),
+                ModelTransform.origin(0.0f, -8.0f, -2.75f)
             )
 
             val decorations =
-                armorHead.addOrReplaceChild("decorations", CubeListBuilder.create(), PartPose.offset(0.0f, 0.0f, 0.0f))
+                armorHead.addChild("decorations", ModelPartBuilder.create(), ModelTransform.origin(0.0f, 0.0f, 0.0f))
 
-            val cube_r4 = decorations.addOrReplaceChild(
+            val cube_r4 = decorations.addChild(
                 "cube_r4",
-                CubeListBuilder.create().texOffs(112, 0)
-                    .addBox(-1.0f, -6.0f, -1.25f, 2.0f, 7.0f, 3.0f, CubeDeformation(0.0f)),
-                PartPose.offsetAndRotation(0.0f, -4.0f, -5.0f, -0.3054f, 0.0f, 0.0f)
+                ModelPartBuilder.create().uv(112, 0)
+                    .cuboid(-1.0f, -6.0f, -1.25f, 2.0f, 7.0f, 3.0f, Dilation(0.0f)),
+                ModelTransform.of(0.0f, -4.0f, -5.0f, -0.3054f, 0.0f, 0.0f)
             )
 
-            val cube_r5 = decorations.addOrReplaceChild(
+            val cube_r5 = decorations.addChild(
                 "cube_r5",
-                CubeListBuilder.create().texOffs(82, 25)
-                    .addBox(-4.25f, -7.5f, -7.25f, 4.0f, 4.0f, 1.0f, CubeDeformation(0.0f)),
-                PartPose.offsetAndRotation(0.0f, 0.0f, 0.0f, -0.3054f, 0.1309f, 0.0f)
+                ModelPartBuilder.create().uv(82, 25)
+                    .cuboid(-4.25f, -7.5f, -7.25f, 4.0f, 4.0f, 1.0f, Dilation(0.0f)),
+                ModelTransform.of(0.0f, 0.0f, 0.0f, -0.3054f, 0.1309f, 0.0f)
             )
-            return LayerDefinition.create(meshDefinition, 128, 128)
+            return TexturedModelData.of(meshDefinition, 128, 128)
         }
     }
 

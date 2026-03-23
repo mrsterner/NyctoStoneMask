@@ -18,13 +18,18 @@ repositories {
 		name "datasync"
 		url "https://maven.uuid.gg/releases"
 	}
+	chenille.repositories.terraformers()
 	chenille.repositories.jitpack()
+	chenille.repositories.modrinth()
+	maven {
+		url = "https://maven.midnightdust.eu/releases"
+	}
 }
 
 dependencies {
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings loom.officialMojangMappings()
+	mappings "net.fabricmc:yarn:${yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
@@ -37,11 +42,11 @@ dependencies {
 	modIncludeImplementation "org.ladysnake.cardinal-components-api:cardinal-components-world:${cardinal_components_version}"
 	modIncludeImplementation "io.github.ladysnake:PlayerAbilityLib:${playerabilitylib_version}"
 	modIncludeImplementation "com.github.MoriyaShiine:tooltipfix:${tooltipfix_version}"
-
+	modImplementation include ("eu.midnightdust:midnightlib:${project.midnightlib_version}")
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
 	modImplementation "moriyashiine:strawberrylib:${strawberrylib_version}"
-	modImplementation "moriyashiine:nycto:1.21.8-b1"
-
+	modImplementation "moriyashiine:nycto:${nycto_version}"
+	modLocalRuntime "com.terraformersmc:modmenu:${mod_menu_version}"
 	modCompileOnly("moriyashiine:hearty-meals:${hearty_meals_version}") {
 		exclude("group": "*")
 	}

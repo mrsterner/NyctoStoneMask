@@ -1,8 +1,9 @@
 package dev.sterner
 
-import moriyashiine.nycto.mixin.power.vampire.batform.client.ClientPlayerEntityMixin
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.client.rendering.v1.ArmorRenderer
+import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry
+import net.minecraft.entity.EquipmentSlot
 
 object NyctoStoneMaskClient : ClientModInitializer {
 
@@ -10,12 +11,10 @@ object NyctoStoneMaskClient : ClientModInitializer {
 
 		StoneMaskNetworkHandler.registerClient()
 
+		EntityModelLayerRegistry.registerModelLayer(StoneMaskModel.MODEL_LAYERS.getModelData(EquipmentSlot.HEAD)) { StoneMaskModel.createBodyLayer() }
 		ArmorRenderer.register(
-			{ poseStack, submitNodeCollector, itemStack, humanoidRenderState, equipmentSlot, light, humanoidModel ->
-				StoneMaskRendererHolder.renderer?.render(
-					poseStack, submitNodeCollector, itemStack,
-					humanoidRenderState, equipmentSlot, light, humanoidModel
-				)
+			{ context ->
+				StoneMaskArmorRenderer(context, EquipmentSlot.HEAD)
 			},
 			ModItems.STONE_MASK
 		)

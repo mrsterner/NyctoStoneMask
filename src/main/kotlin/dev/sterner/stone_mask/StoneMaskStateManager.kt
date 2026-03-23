@@ -1,20 +1,20 @@
 package dev.sterner.stone_mask
 
 import dev.sterner.StoneMaskNetworkHandler
-import net.minecraft.server.level.ServerPlayer
+import net.minecraft.server.network.ServerPlayerEntity
 
 object StoneMaskStateManager {
 
     private val states = mutableMapOf<java.util.UUID, StoneMaskAnimationState>()
 
-    fun getOrCreate(player: ServerPlayer): StoneMaskAnimationState =
+    fun getOrCreate(player: ServerPlayerEntity): StoneMaskAnimationState =
         states.getOrPut(player.uuid) { StoneMaskAnimationState() }
 
-    fun get(player: ServerPlayer): StoneMaskAnimationState? = states[player.uuid]
+    fun get(player: ServerPlayerEntity): StoneMaskAnimationState? = states[player.uuid]
 
-    fun remove(player: ServerPlayer) = states.remove(player.uuid)
+    fun remove(player: ServerPlayerEntity) = states.remove(player.uuid)
 
-    fun tick(player: ServerPlayer) {
+    fun tick(player: ServerPlayerEntity) {
         val state = getOrCreate(player)
         state.phaseTicks++
 
@@ -43,14 +43,15 @@ object StoneMaskStateManager {
         }
     }
 
-    fun triggerAwaken(player: ServerPlayer) {
+    fun triggerAwaken(player: ServerPlayerEntity) {
         val state = getOrCreate(player)
         if (state.phase == StoneMaskPhase.INACTIVE) {
             advanceTo(player, state, StoneMaskPhase.AWAKEN)
         }
     }
 
-    private fun advanceTo(player: ServerPlayer, state: StoneMaskAnimationState, next: StoneMaskPhase) {
+    private fun advanceTo(player: ServerPlayerEntity, state: StoneMaskAnimationState, next: StoneMaskPhase) {
+        println("Advancing to $next")
         state.phase = next
         state.phaseTicks = 0
         StoneMaskNetworkHandler.sendPhaseUpdate(player, next)

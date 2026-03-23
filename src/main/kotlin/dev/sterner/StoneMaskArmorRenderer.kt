@@ -1,41 +1,42 @@
 package dev.sterner
 
-import com.mojang.blaze3d.vertex.PoseStack
 import dev.sterner.stone_mask.StoneMaskClientStateManager
 import dev.sterner.stone_mask.StoneMaskKeyframeAnimation
 import dev.sterner.stone_mask.StoneMaskPhase
 import net.fabricmc.fabric.api.client.rendering.v1.ArmorRenderer
-import net.minecraft.client.model.HumanoidModel
-import net.minecraft.client.renderer.OrderedSubmitNodeCollector
-import net.minecraft.client.renderer.SubmitNodeCollector
-import net.minecraft.client.renderer.entity.EntityRendererProvider
-import net.minecraft.client.renderer.entity.state.HumanoidRenderState
-import net.minecraft.client.renderer.rendertype.RenderTypes
-import net.minecraft.client.renderer.texture.OverlayTexture
-import net.minecraft.resources.Identifier
-import net.minecraft.world.entity.EquipmentSlot
-import net.minecraft.world.item.ItemStack
+import net.minecraft.client.render.OverlayTexture
+import net.minecraft.client.render.RenderLayer
+import net.minecraft.client.render.RenderLayers
+import net.minecraft.client.render.command.OrderedRenderCommandQueue
+import net.minecraft.client.render.command.RenderCommandQueue
+import net.minecraft.client.render.entity.EntityRendererFactory
+import net.minecraft.client.render.entity.feature.ArmorFeatureRenderer
+import net.minecraft.client.render.entity.model.BipedEntityModel
+import net.minecraft.client.render.entity.state.BipedEntityRenderState
+import net.minecraft.client.util.math.MatrixStack
+import net.minecraft.entity.EquipmentSlot
+import net.minecraft.item.ItemStack
+import net.minecraft.util.Identifier
 import java.util.UUID
 
 class StoneMaskArmorRenderer(
-    var armorModel: StoneMaskModel<HumanoidRenderState>
+    var armorModel: StoneMaskModel<BipedEntityRenderState>
 ) : ArmorRenderer {
 
-    private val TEXTURE: Identifier = NyctoStoneMask.id("textures/entity/equipment/vampire_armor.png")
+    private val TEXTURE: Identifier = NyctoStoneMask.id("textures/armor/stone_mask.png")
 
-    // Baked animations — created once after the model is constructed
     private val inactiveAnim: StoneMaskKeyframeAnimation
     private val awakenAnim: StoneMaskKeyframeAnimation
     private val piercedAnim: StoneMaskKeyframeAnimation
     private val retractAnim: StoneMaskKeyframeAnimation
 
-    constructor(context: EntityRendererProvider.Context, slot: EquipmentSlot) : this(
-        StoneMaskModel(context.bakeLayer(StoneMaskModel.MODEL_LAYERS.get(slot)))
+    constructor(context: EntityRendererFactory.Context, slot: EquipmentSlot) : this(
+        StoneMaskModel(context.getPart(StoneMaskModel.MODEL_LAYERS.getModelData(slot)))
     )
 
     init {
         val defs = StoneMaskAnimation()
-        val root = armorModel.root()
+        val root = armorModel.rootPart
         inactiveAnim = StoneMaskKeyframeAnimation.bake(root, defs.inactive)
         awakenAnim   = StoneMaskKeyframeAnimation.bake(root, defs.awaken)
         piercedAnim  = StoneMaskKeyframeAnimation.bake(root, defs.pierced)
@@ -43,34 +44,34 @@ class StoneMaskArmorRenderer(
     }
 
     override fun render(
-        poseStack: PoseStack,
-        submitNodeCollector: SubmitNodeCollector,
+        poseStack: MatrixStack,
+        submitNodeCollector: OrderedRenderCommandQueue,
         itemStack: ItemStack,
-        humanoidRenderState: HumanoidRenderState,
+        humanoidRenderState: BipedEntityRenderState,
         equipmentSlot: EquipmentSlot,
         light: Int,
-        humanoidModel: HumanoidModel<HumanoidRenderState>
+        humanoidModel: BipedEntityModel<BipedEntityRenderState>
     ) {
         if (equipmentSlot != EquipmentSlot.HEAD) return
 
         val uuid: UUID = StoneMaskItem.getOwnerUUID(itemStack) ?: return
         val clientState = StoneMaskClientStateManager.getOrCreate(uuid)
-        val age = humanoidRenderState.ageInTicks
+        val age = humanoidRenderState.age
 
-        val anim = when (clientState.phase) {
-            StoneMaskPhase.INACTIVE -> inactiveAnim
-            StoneMaskPhase.AWAKEN   -> awakenAnim
-            StoneMaskPhase.PIERCED  -> piercedAnim
-            StoneMaskPhase.RETRACT  -> retractAnim
+        if (clientState.phase != StoneMaskPhase.INACTIVE && !clientState.animationState.isRunning) {
+            clientState.animationState.start(age.toInt())
         }
 
-        if (clientState.phase == StoneMaskPhase.INACTIVE) {
-            anim.applyStatic()
-        } else {
-            anim.apply(clientState.animationState, age)
+        armorModel.animationApplier = {
+            when (clientState.phase) {
+                StoneMaskPhase.INACTIVE -> inactiveAnim.applyStatic()
+                StoneMaskPhase.AWAKEN   -> awakenAnim.apply(clientState.animationState, age)
+                StoneMaskPhase.PIERCED  -> piercedAnim.apply(clientState.animationState, age)
+                StoneMaskPhase.RETRACT  -> retractAnim.apply(clientState.animationState, age)
+            }
         }
 
-        val queue: OrderedSubmitNodeCollector = submitNodeCollector.order(0)
+        val queue: RenderCommandQueue = submitNodeCollector.getBatchingQueue(0)
         ArmorRenderer.submitTransformCopyingModel(
             humanoidModel,
             humanoidRenderState,
@@ -79,9 +80,9 @@ class StoneMaskArmorRenderer(
             true,
             queue,
             poseStack,
-            RenderTypes.armorCutoutNoCull(TEXTURE),
+            RenderLayers.armorCutoutNoCull(TEXTURE),
             light,
-            OverlayTexture.NO_OVERLAY,
+            OverlayTexture.DEFAULT_UV,
             humanoidRenderState.outlineColor,
             null
         )

@@ -2,7 +2,8 @@ package dev.sterner.stone_mask
 
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
-import net.minecraft.world.entity.AnimationState
+import net.minecraft.client.MinecraftClient
+import net.minecraft.entity.AnimationState
 import java.util.UUID
 
 @Environment(EnvType.CLIENT)
@@ -23,7 +24,7 @@ object StoneMaskClientStateManager {
         s.phase = phase
         s.animationState.stop()
         if (phase != StoneMaskPhase.INACTIVE) {
-            val tickCount = net.minecraft.client.Minecraft.getInstance().player?.tickCount ?: 0
+            val tickCount = MinecraftClient.getInstance().player?.age ?: 0
             s.animationState.start(tickCount)
         }
     }

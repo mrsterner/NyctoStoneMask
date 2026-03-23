@@ -11,42 +11,43 @@ import net.fabricmc.api.Environment
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
-import net.minecraft.client.Minecraft
-import net.minecraft.server.level.ServerPlayer
+import net.minecraft.client.MinecraftClient
+import net.minecraft.server.network.ServerPlayerEntity
 
 object StoneMaskNetworkHandler {
 
     fun registerCommon() {
-
         PayloadTypeRegistry.playS2C().register(
             StoneMaskAnimationPayload.ID,
             StoneMaskAnimationPayload.CODEC
         )
-
         PayloadTypeRegistry.playS2C().register(
             StoneMaskPhasePayload.ID,
             StoneMaskPhasePayload.CODEC
         )
-
         PayloadTypeRegistry.playS2C().register(
             StoneMaskAwakenFinishedPayload.ID,
             StoneMaskAwakenFinishedPayload.CODEC
         )
-
         PayloadTypeRegistry.playC2S().register(
             StoneMaskAwakenAckPayload.ID,
             StoneMaskAwakenAckPayload.CODEC
         )
+
+        ServerPlayNetworking.registerGlobalReceiver(StoneMaskAwakenAckPayload.ID) { payload, context ->
+            val player: ServerPlayerEntity = context.player()
+
+        }
     }
 
-    fun sendPhaseUpdate(wearer: ServerPlayer, phase: StoneMaskPhase) {
+    fun sendPhaseUpdate(wearer: ServerPlayerEntity, phase: StoneMaskPhase) {
         val payload = StoneMaskPhasePayload(wearer.uuid, phase)
-        wearer.level().players().forEach { p ->
+        wearer.entityWorld.players.forEach { p ->
             ServerPlayNetworking.send(p, payload)
         }
     }
 
-    fun sendAwakenFinished(wearer: ServerPlayer) {
+    fun sendAwakenFinished(wearer: ServerPlayerEntity) {
         ServerPlayNetworking.send(wearer, StoneMaskAwakenFinishedPayload(wearer.uuid))
     }
 
@@ -54,8 +55,8 @@ object StoneMaskNetworkHandler {
     fun registerClient() {
         ClientPlayNetworking.registerGlobalReceiver(StoneMaskAnimationPayload.ID) { payload, context ->
             context.client().execute {
-                val level = Minecraft.getInstance().level ?: return@execute
-                level.getPlayerByUUID(payload.playerUuid) ?: return@execute
+                val level = MinecraftClient.getInstance().world ?: return@execute
+                level.getPlayerByUuid(payload.playerUuid) ?: return@execute
             }
         }
 

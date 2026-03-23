@@ -1,24 +1,20 @@
 package dev.sterner.stone_mask
 
-import net.minecraft.client.animation.AnimationChannel
-import net.minecraft.client.animation.AnimationDefinition
-import net.minecraft.client.animation.Keyframe
-import net.minecraft.client.model.geom.ModelPart
-import net.minecraft.util.Mth
-import net.minecraft.world.entity.AnimationState
+import net.minecraft.client.model.ModelPart
+import net.minecraft.client.render.entity.animation.AnimationDefinition
+import net.minecraft.client.render.entity.animation.Keyframe
+import net.minecraft.client.render.entity.animation.Transformation
+import net.minecraft.entity.AnimationState
+import net.minecraft.util.math.MathHelper
 import org.joml.Vector3f
 
-/**
- * A copy of the package-private KeyframeAnimation logic so we can use it
- * outside of net.minecraft.client.animation.
- */
 class StoneMaskKeyframeAnimation(
     private val definition: AnimationDefinition,
     private val entries: List<Entry>
 ) {
     companion object {
         fun bake(rootPart: ModelPart, definition: AnimationDefinition): StoneMaskKeyframeAnimation {
-            val lookup = rootPart.createPartLookup()
+            val lookup = rootPart.createPartGetter()
             val entries = mutableListOf<Entry>()
             for ((boneName, channels) in definition.boneAnimations()) {
                 val part = lookup.apply(boneName)
@@ -32,8 +28,10 @@ class StoneMaskKeyframeAnimation(
     }
 
     fun apply(animationState: AnimationState, age: Float) {
-        animationState.ifStarted { state ->
-            apply(state.getTimeInMillis(age).toLong(), 1.0f)
+        animationState.run { state ->
+            val ms = state.getTimeInMilliseconds(age)
+            println("[StoneMask] KeyframeAnim.apply ms=$ms")
+            apply(ms, 1.0f)
         }
     }
 
@@ -54,16 +52,16 @@ class StoneMaskKeyframeAnimation(
 
     class Entry(
         private val part: ModelPart,
-        private val target: AnimationChannel.Target,
+        private val target: Transformation.Target,
         private val keyframes: Array<Keyframe>
     ) {
         fun apply(elapsed: Float, scale: Float, vec: Vector3f) {
-            val i = maxOf(0, Mth.binarySearch(0, keyframes.size) { n -> elapsed <= keyframes[n].timestamp() } - 1)
+            val i = maxOf(0, MathHelper.binarySearch(0, keyframes.size) { n -> elapsed <= keyframes[n].timestamp() } - 1)
             val j = minOf(keyframes.size - 1, i + 1)
             val kf1 = keyframes[i]
             val kf2 = keyframes[j]
             val delta = elapsed - kf1.timestamp()
-            val t = if (j != i) Mth.clamp(delta / (kf2.timestamp() - kf1.timestamp()), 0f, 1f) else 0f
+            val t = if (j != i) MathHelper.clamp(delta / (kf2.timestamp() - kf1.timestamp()), 0f, 1f) else 0f
             kf2.interpolation().apply(vec, t, keyframes, i, j, scale)
             target.apply(part, vec)
         }

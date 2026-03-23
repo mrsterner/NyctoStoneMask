@@ -1,18 +1,24 @@
 package dev.sterner
 
+import moriyashiine.nycto.mixin.power.vampire.batform.client.ClientPlayerEntityMixin
 import net.fabricmc.api.ClientModInitializer
-import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.client.rendering.v1.ArmorRenderer
-import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry
-import org.slf4j.LoggerFactory
 
 object NyctoStoneMaskClient : ClientModInitializer {
 
 	override fun onInitializeClient() {
-		EntityModelLayerRegistry.registerModelLayer(StoneMaskModel.LAYER_LOCATION) {
-			StoneMaskModel.createBodyLayer()
-		}
-		ArmorRenderer.register(StoneMaskArmorRenderer(), NyctoStoneMask.STONE_MASK)
+
 		StoneMaskNetworkHandler.registerClient()
+
+		ArmorRenderer.register(
+			{ poseStack, submitNodeCollector, itemStack, humanoidRenderState, equipmentSlot, light, humanoidModel ->
+				StoneMaskRendererHolder.renderer?.render(
+					poseStack, submitNodeCollector, itemStack,
+					humanoidRenderState, equipmentSlot, light, humanoidModel
+				)
+			},
+			ModItems.STONE_MASK
+		)
 	}
 }
+

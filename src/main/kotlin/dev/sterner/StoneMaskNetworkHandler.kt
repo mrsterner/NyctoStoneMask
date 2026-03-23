@@ -1,32 +1,73 @@
 package dev.sterner
 
+import dev.sterner.payload.StoneMaskAnimationPayload
+import dev.sterner.payload.StoneMaskAwakenAckPayload
+import dev.sterner.payload.StoneMaskAwakenFinishedPayload
+import dev.sterner.payload.StoneMaskPhasePayload
+import dev.sterner.stone_mask.StoneMaskClientStateManager
+import dev.sterner.stone_mask.StoneMaskPhase
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.client.Minecraft
+import net.minecraft.server.level.ServerPlayer
 
 object StoneMaskNetworkHandler {
 
     fun registerCommon() {
+
         PayloadTypeRegistry.playS2C().register(
             StoneMaskAnimationPayload.ID,
             StoneMaskAnimationPayload.CODEC
         )
+
+        PayloadTypeRegistry.playS2C().register(
+            StoneMaskPhasePayload.ID,
+            StoneMaskPhasePayload.CODEC
+        )
+
+        PayloadTypeRegistry.playS2C().register(
+            StoneMaskAwakenFinishedPayload.ID,
+            StoneMaskAwakenFinishedPayload.CODEC
+        )
+
+        PayloadTypeRegistry.playC2S().register(
+            StoneMaskAwakenAckPayload.ID,
+            StoneMaskAwakenAckPayload.CODEC
+        )
+    }
+
+    fun sendPhaseUpdate(wearer: ServerPlayer, phase: StoneMaskPhase) {
+        val payload = StoneMaskPhasePayload(wearer.uuid, phase)
+        wearer.level().players().forEach { p ->
+            ServerPlayNetworking.send(p, payload)
+        }
+    }
+
+    fun sendAwakenFinished(wearer: ServerPlayer) {
+        ServerPlayNetworking.send(wearer, StoneMaskAwakenFinishedPayload(wearer.uuid))
     }
 
     @Environment(EnvType.CLIENT)
     fun registerClient() {
         ClientPlayNetworking.registerGlobalReceiver(StoneMaskAnimationPayload.ID) { payload, context ->
             context.client().execute {
-                val minecraft = Minecraft.getInstance()
-                val level = minecraft.level ?: return@execute
-                val player = level.getPlayerByUUID(payload.playerUuid) ?: return@execute
+                val level = Minecraft.getInstance().level ?: return@execute
+                level.getPlayerByUUID(payload.playerUuid) ?: return@execute
+            }
+        }
 
-                StoneMaskClientAnimationManager.setAnimation(
-                    player,
-                    payload.animationType
-                )
+        ClientPlayNetworking.registerGlobalReceiver(StoneMaskPhasePayload.ID) { payload, context ->
+            context.client().execute {
+                StoneMaskClientStateManager.setPhase(payload.playerUuid, payload.phase)
+            }
+        }
+
+        ClientPlayNetworking.registerGlobalReceiver(StoneMaskAwakenFinishedPayload.ID) { payload, context ->
+            context.client().execute {
+                ClientPlayNetworking.send(StoneMaskAwakenAckPayload(payload.playerUuid))
             }
         }
     }

@@ -1,76 +1,89 @@
 package dev.sterner
 
-
-
 import com.mojang.blaze3d.vertex.PoseStack
+import dev.sterner.stone_mask.StoneMaskClientStateManager
+import dev.sterner.stone_mask.StoneMaskKeyframeAnimation
+import dev.sterner.stone_mask.StoneMaskPhase
 import net.fabricmc.fabric.api.client.rendering.v1.ArmorRenderer
-import net.minecraft.client.Minecraft
 import net.minecraft.client.model.HumanoidModel
-import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.RenderType
-import net.minecraft.client.renderer.entity.ItemRenderer
+import net.minecraft.client.renderer.OrderedSubmitNodeCollector
+import net.minecraft.client.renderer.SubmitNodeCollector
+import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState
-import net.minecraft.client.renderer.entity.state.PlayerRenderState
+import net.minecraft.client.renderer.rendertype.RenderTypes
 import net.minecraft.client.renderer.texture.OverlayTexture
-import net.minecraft.resources.ResourceLocation
-import net.minecraft.sounds.SoundEvent
+import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.EquipmentSlot
-import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.item.ItemStack
+import java.util.UUID
 
-class StoneMaskArmorRenderer : ArmorRenderer {
-    companion object {
-        private val TEXTURE = ResourceLocation.fromNamespaceAndPath(NyctoStoneMask.MODID, "textures/armor/stone_mask.png")
-        private val BLOOD_TEXTURE = ResourceLocation.fromNamespaceAndPath(NyctoStoneMask.MODID, "textures/armor/stone_mask_blood.png")
-        private var model: StoneMaskModel? = null
+class StoneMaskArmorRenderer(
+    var armorModel: StoneMaskModel<HumanoidRenderState>
+) : ArmorRenderer {
 
-        fun getModel(): StoneMaskModel {
-            if (model == null) {
-                val minecraft = Minecraft.getInstance()
-                val modelPart = minecraft.entityModels.bakeLayer(StoneMaskModel.LAYER_LOCATION)
-                model = StoneMaskModel(modelPart)
-            }
-            return model!!
-        }
+    private val TEXTURE: Identifier = NyctoStoneMask.id("textures/entity/equipment/vampire_armor.png")
+
+    // Baked animations — created once after the model is constructed
+    private val inactiveAnim: StoneMaskKeyframeAnimation
+    private val awakenAnim: StoneMaskKeyframeAnimation
+    private val piercedAnim: StoneMaskKeyframeAnimation
+    private val retractAnim: StoneMaskKeyframeAnimation
+
+    constructor(context: EntityRendererProvider.Context, slot: EquipmentSlot) : this(
+        StoneMaskModel(context.bakeLayer(StoneMaskModel.MODEL_LAYERS.get(slot)))
+    )
+
+    init {
+        val defs = StoneMaskAnimation()
+        val root = armorModel.root()
+        inactiveAnim = StoneMaskKeyframeAnimation.bake(root, defs.inactive)
+        awakenAnim   = StoneMaskKeyframeAnimation.bake(root, defs.awaken)
+        piercedAnim  = StoneMaskKeyframeAnimation.bake(root, defs.pierced)
+        retractAnim  = StoneMaskKeyframeAnimation.bake(root, defs.retract)
     }
 
-
-
     override fun render(
-        matrices: PoseStack,
-        vertexConsumers: MultiBufferSource,
-        stack: ItemStack,
-        renderState: HumanoidRenderState,
-        slot: EquipmentSlot,
+        poseStack: PoseStack,
+        submitNodeCollector: SubmitNodeCollector,
+        itemStack: ItemStack,
+        humanoidRenderState: HumanoidRenderState,
+        equipmentSlot: EquipmentSlot,
         light: Int,
-        contextModel: HumanoidModel<HumanoidRenderState>
+        humanoidModel: HumanoidModel<HumanoidRenderState>
     ) {
-        if (slot != EquipmentSlot.HEAD || stack.item !is StoneMaskItem) {
-            return
+        if (equipmentSlot != EquipmentSlot.HEAD) return
+
+        val uuid: UUID = StoneMaskItem.getOwnerUUID(itemStack) ?: return
+        val clientState = StoneMaskClientStateManager.getOrCreate(uuid)
+        val age = humanoidRenderState.ageInTicks
+
+        val anim = when (clientState.phase) {
+            StoneMaskPhase.INACTIVE -> inactiveAnim
+            StoneMaskPhase.AWAKEN   -> awakenAnim
+            StoneMaskPhase.PIERCED  -> piercedAnim
+            StoneMaskPhase.RETRACT  -> retractAnim
         }
 
-        val maskModel = getModel()
+        if (clientState.phase == StoneMaskPhase.INACTIVE) {
+            anim.applyStatic()
+        } else {
+            anim.apply(clientState.animationState, age)
+        }
 
-        maskModel.copyFrom(contextModel)
-
-        val activated = stack.getOrDefault(NyctoStoneMask.MASK_STATE, NyctoStoneMask.MaskData())
-
-        maskModel.playAnimation(activated.maskState)
-
-        maskModel.setupAnim(renderState)
-
-        val vertexConsumer = ItemRenderer.getArmorFoilBuffer(
-            vertexConsumers,
-            RenderType.armorCutoutNoCull(TEXTURE),
-            false
-        )
-
-        maskModel.renderMask(
-            matrices,
-            vertexConsumer,
+        val queue: OrderedSubmitNodeCollector = submitNodeCollector.order(0)
+        ArmorRenderer.submitTransformCopyingModel(
+            humanoidModel,
+            humanoidRenderState,
+            armorModel,
+            humanoidRenderState,
+            true,
+            queue,
+            poseStack,
+            RenderTypes.armorCutoutNoCull(TEXTURE),
             light,
             OverlayTexture.NO_OVERLAY,
-            0xFFFFFFFF.toInt() // White color
+            humanoidRenderState.outlineColor,
+            null
         )
     }
 }

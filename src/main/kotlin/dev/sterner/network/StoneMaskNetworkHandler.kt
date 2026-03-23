@@ -6,12 +6,14 @@ import dev.sterner.network.payload.StoneMaskAwakenFinishedPayload
 import dev.sterner.network.payload.StoneMaskPhasePayload
 import dev.sterner.stone_mask.client.StoneMaskClientStateManager
 import dev.sterner.stone_mask.StoneMaskPhase
+import moriyashiine.nycto.common.init.ModStatusEffects
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.client.MinecraftClient
+import net.minecraft.entity.effect.StatusEffectInstance
 import net.minecraft.server.network.ServerPlayerEntity
 import java.util.UUID
 
@@ -37,7 +39,8 @@ object StoneMaskNetworkHandler {
 
         ServerPlayNetworking.registerGlobalReceiver(StoneMaskAwakenAckPayload.Companion.ID) { payload, context ->
             val player: ServerPlayerEntity = context.player()
-            //TODO apply vampirism
+
+            player.addStatusEffect(StatusEffectInstance(ModStatusEffects.VAMPIRISM, 30 * 20))
         }
     }
 

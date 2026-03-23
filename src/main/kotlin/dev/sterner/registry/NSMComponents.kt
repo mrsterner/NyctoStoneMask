@@ -17,9 +17,15 @@ object NSMComponents {
         return Registry.register(Registries.DATA_COMPONENT_TYPE, name, built)
     }
 
+
     val UUID_DATA: ComponentType<UUID> = register(
         "uuid_data"
     ) { builder ->
         builder.codec(Uuids.CODEC)
+    }
+
+
+    fun init() {
+
     }
 }

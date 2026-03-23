@@ -1,11 +1,26 @@
 package dev.sterner.event
 
 import dev.sterner.item.StoneMaskItem
+import dev.sterner.registry.NSMItems
 import dev.sterner.stone_mask.StoneMaskStateManager
+import moriyashiine.nycto.api.init.NyctoRegistries
+import moriyashiine.nycto.common.init.ModItems
+import moriyashiine.nycto.common.tag.ModEntityTypeTags
 import net.fabricmc.fabric.api.entity.event.v1.ServerEntityCombatEvents
+import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
+import net.fabricmc.fabric.api.loot.v3.LootTableEvents
 import net.minecraft.entity.EquipmentSlot
+import net.minecraft.entity.LivingEntity
+import net.minecraft.entity.damage.DamageSource
 import net.minecraft.entity.passive.SheepEntity
+import net.minecraft.loot.LootPool
+import net.minecraft.loot.LootTables
+import net.minecraft.loot.condition.RandomChanceLootCondition
+import net.minecraft.loot.entry.ItemEntry
+import net.minecraft.loot.provider.number.ConstantLootNumberProvider
 import net.minecraft.server.network.ServerPlayerEntity
 
 object StoneMaskEvents {
@@ -13,6 +28,7 @@ object StoneMaskEvents {
     fun register() {
         registerTickEvent()
         registerSheepKillEvent()
+        registerLootInjection()
     }
 
     private fun registerTickEvent() {
@@ -35,10 +51,41 @@ object StoneMaskEvents {
     }
 
     private fun registerSheepKillEvent() {
-        ServerEntityCombatEvents.AFTER_KILLED_OTHER_ENTITY.register { _, killer, killed, _ ->
-            if (killed is SheepEntity && killer is ServerPlayerEntity) {
-                StoneMaskStateManager.triggerAwaken(killer)
+        ServerLivingEntityEvents.AFTER_DAMAGE.register { living: LivingEntity, source: DamageSource, baseDamageTaken: Float, damageTaken: Float, blocked ->
+            val sourceEntity = source.source
+            if (sourceEntity is ServerPlayerEntity) {
+
+                if (living.type.isIn(ModEntityTypeTags.HAS_QUALITY_BLOOD)) {
+                    StoneMaskStateManager.triggerAwaken(sourceEntity)
+                }
             }
+        }
+    }
+
+    private fun registerLootInjection() {
+        LootTableEvents.MODIFY.register { key, tableBuilder, source, registries ->
+            if (!source.isBuiltin) return@register
+
+            val targets = setOf(
+                LootTables.JUNGLE_TEMPLE_CHEST,
+                LootTables.DESERT_PYRAMID_CHEST
+            )
+
+            if (key !in targets) return@register
+
+            val entry = ItemEntry.builder(NSMItems.STONE_MASK)
+                .weight(1)
+                .build()
+
+            val pool = LootPool.builder()
+                .rolls(ConstantLootNumberProvider.create(1.0f))
+                .conditionally(
+                    RandomChanceLootCondition.builder(0.08f)
+                )
+                .with(entry)
+                .build()
+
+            tableBuilder.pool(pool)
         }
     }
 }

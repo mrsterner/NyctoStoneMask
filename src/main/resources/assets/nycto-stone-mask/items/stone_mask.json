@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "minecraft:item/iron_helmet",
+    "special": {
+      "type": "nycto-stone-mask:stone_mask"
+    }
+  }
+}

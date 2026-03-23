@@ -3,12 +3,15 @@ package dev.sterner.stone_mask
 import dev.sterner.item.StoneMaskItem
 import dev.sterner.network.StoneMaskNetworkHandler
 import net.minecraft.entity.EquipmentSlot
+import net.minecraft.entity.ItemEntity
+import net.minecraft.item.ItemStack
 import net.minecraft.server.network.ServerPlayerEntity
+import net.minecraft.util.math.Vec3d
 import java.util.UUID
 
 object StoneMaskStateManager {
 
-    private val states = mutableMapOf<UUID, StoneMaskAnimationState>()
+    val states = mutableMapOf<UUID, StoneMaskAnimationState>()
     private val maskToPlayer = mutableMapOf<UUID, UUID>()
 
     fun getActiveMaskForPlayer(playerUuid: UUID): UUID? =
@@ -75,5 +78,31 @@ object StoneMaskStateManager {
         state.phase = next
         state.phaseTicks = 0
         StoneMaskNetworkHandler.sendPhaseUpdate(player, maskUuid, next)
+
+        if (next == StoneMaskPhase.INACTIVE) {
+            popMaskOff(player)
+        }
+    }
+
+    private fun popMaskOff(player: ServerPlayerEntity) {
+        val stack = player.getEquippedStack(EquipmentSlot.HEAD)
+        if (stack.item !is StoneMaskItem) return
+
+        player.equipStack(EquipmentSlot.HEAD, ItemStack.EMPTY)
+
+        val itemEntity = ItemEntity(
+            player.entityWorld,
+            player.x,
+            player.y + player.standingEyeHeight - 0.3,
+            player.z,
+            stack
+        )
+        itemEntity.setPickupDelay(40)
+        itemEntity.velocity = Vec3d(
+            (player.random.nextDouble() - 0.5) * 0.1,
+            0.2,
+            (player.random.nextDouble() - 0.5) * 0.1
+        )
+        player.entityWorld.spawnEntity(itemEntity)
     }
 }

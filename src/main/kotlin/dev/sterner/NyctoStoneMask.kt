@@ -2,6 +2,7 @@ package dev.sterner
 
 import dev.sterner.event.StoneMaskEvents
 import dev.sterner.network.StoneMaskNetworkHandler
+import dev.sterner.registry.NSMComponents
 import dev.sterner.registry.NSMItems
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents
@@ -16,6 +17,7 @@ object NyctoStoneMask : ModInitializer {
 		ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register { entries ->
 			entries.add(NSMItems.STONE_MASK)
 		}
+		NSMComponents.init()
 		StoneMaskNetworkHandler.registerCommon()
 		StoneMaskEvents.register()
 	}

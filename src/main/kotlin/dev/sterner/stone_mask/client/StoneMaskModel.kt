@@ -1,4 +1,4 @@
-package dev.sterner
+package dev.sterner.stone_mask.client
 
 import moriyashiine.nycto.common.Nycto
 import net.minecraft.client.model.*
@@ -6,26 +6,11 @@ import net.minecraft.client.render.entity.model.BipedEntityModel
 import net.minecraft.client.render.entity.model.EntityModelLayer
 import net.minecraft.client.render.entity.model.EquipmentModelData
 import net.minecraft.client.render.entity.state.BipedEntityRenderState
-import net.minecraft.util.math.MathHelper
 
 
 class StoneMaskModel<T : BipedEntityRenderState>(root: ModelPart) : BipedEntityModel<T>(root) {
 
     private val armorHead: ModelPart = root.getChild("armorHead")
-    private val lPlate: ModelPart = armorHead.getChild("lPlate")
-    private val blood: ModelPart = lPlate.getChild("blood")
-    private val rPlate: ModelPart = armorHead.getChild("rPlate")
-
-    private val lClaw02: ModelPart = armorHead.getChild("lClaw02")
-    private val rClaw02: ModelPart = armorHead.getChild("rClaw02")
-    private val lClaw01: ModelPart = armorHead.getChild("lClaw01")
-    private val rClaw01: ModelPart = armorHead.getChild("rClaw01")
-    private val lClaw03: ModelPart = armorHead.getChild("lClaw03")
-    private val rClaw03: ModelPart = armorHead.getChild("rClaw03")
-    private val lClaw04: ModelPart = armorHead.getChild("lClaw04")
-    private val rClaw04: ModelPart = armorHead.getChild("rClaw04")
-    private val mClaw: ModelPart = armorHead.getChild("mClaw")
-    private val decorations: ModelPart = armorHead.getChild("decorations")
 
     var animationApplier: (() -> Unit)? = null
 
@@ -61,7 +46,6 @@ class StoneMaskModel<T : BipedEntityRenderState>(root: ModelPart) : BipedEntityM
             partDefinition.addChild("left_arm", ModelPartBuilder.create(), ModelTransform.NONE)
             partDefinition.addChild("right_leg", ModelPartBuilder.create(), ModelTransform.NONE)
             partDefinition.addChild("left_leg", ModelPartBuilder.create(), ModelTransform.NONE)
-
 
             val lPlate = armorHead.addChild(
                 "lPlate",
@@ -111,70 +95,70 @@ class StoneMaskModel<T : BipedEntityRenderState>(root: ModelPart) : BipedEntityM
                 ModelTransform.of(-0.25f, 0.25f, -0.25f, -0.0436f, 0.1309f, 0f)
             )
 
-            val cube_r3: ModelPartData? = rPlate.addChild(
+            rPlate.addChild(
                 "cube_r3",
                 ModelPartBuilder.create().uv(96, 16)
                     .cuboid(-2.8f, -1.5f, -1.25f, 4.0f, 3.0f, 2.0f, Dilation(0.1f)),
                 ModelTransform.of(-0.45f, -1.1539f, -3.1819f, 0.2618f, 0.0f, 0.0f)
             )
 
-            val lClaw02 = armorHead.addChild(
+            armorHead.addChild(
                 "lClaw02",
                 ModelPartBuilder.create().uv(96, 41)
                     .cuboid(-3.5f, -1.0f, 0.0f, 4.0f, 1.0f, 7.0f, Dilation(-0.1f)),
                 ModelTransform.origin(4.0f, -3.5f, -2.75f)
             )
 
-            val rClaw02 = armorHead.addChild(
+            armorHead.addChild(
                 "rClaw02",
                 ModelPartBuilder.create().uv(96, 41).mirrored()
                     .cuboid(-0.5f, -1.0f, 0.0f, 4.0f, 1.0f, 7.0f, Dilation(-0.1f)).mirrored(false),
                 ModelTransform.origin(-4.0f, -3.5f, -2.75f)
             )
 
-            val lClaw01 = armorHead.addChild(
+            armorHead.addChild(
                 "lClaw01",
                 ModelPartBuilder.create().uv(95, 27)
                     .cuboid(-3.5f, -1.0f, 0.0f, 4.0f, 1.0f, 8.0f, Dilation(-0.1f)),
                 ModelTransform.origin(4.0f, -1.0f, -3.75f)
             )
 
-            val rClaw01 = armorHead.addChild(
+            armorHead.addChild(
                 "rClaw01",
                 ModelPartBuilder.create().uv(95, 27).mirrored()
                     .cuboid(-0.5f, -1.0f, 0.0f, 4.0f, 1.0f, 8.0f, Dilation(-0.1f)).mirrored(false),
                 ModelTransform.origin(-4.0f, -1.0f, -3.75f)
             )
 
-            val lClaw03 = armorHead.addChild(
+            armorHead.addChild(
                 "lClaw03",
                 ModelPartBuilder.create().uv(96, 41)
                     .cuboid(-3.5f, -1.0f, 0.0f, 4.0f, 1.0f, 7.0f, Dilation(-0.1f)),
                 ModelTransform.origin(4.0f, -6.0f, -2.75f)
             )
 
-            val rClaw03 = armorHead.addChild(
+            armorHead.addChild(
                 "rClaw03",
                 ModelPartBuilder.create().uv(96, 41).mirrored()
                     .cuboid(-0.5f, -1.0f, 0.0f, 4.0f, 1.0f, 7.0f, Dilation(-0.1f)).mirrored(false),
                 ModelTransform.origin(-4.0f, -6.0f, -2.75f)
             )
 
-            val lClaw04 = armorHead.addChild(
+            armorHead.addChild(
                 "lClaw04",
                 ModelPartBuilder.create().uv(99, 53)
                     .cuboid(-1.0f, -0.5f, -0.01f, 1.0f, 4.0f, 7.0f, Dilation(-0.1f)),
                 ModelTransform.origin(2.5f, -8.0f, -2.75f)
             )
 
-            val rClaw04 = armorHead.addChild(
+            armorHead.addChild(
                 "rClaw04",
                 ModelPartBuilder.create().uv(99, 53).mirrored()
                     .cuboid(0.0f, -0.5f, -0.01f, 1.0f, 4.0f, 7.0f, Dilation(-0.1f)).mirrored(false),
                 ModelTransform.origin(-2.5f, -8.0f, -2.75f)
             )
 
-            val mClaw = armorHead.addChild(
+            armorHead.addChild(
                 "mClaw",
                 ModelPartBuilder.create().uv(99, 53)
                     .cuboid(-0.5f, -0.5f, -0.01f, 1.0f, 4.0f, 7.0f, Dilation(-0.1f)),
@@ -184,23 +168,21 @@ class StoneMaskModel<T : BipedEntityRenderState>(root: ModelPart) : BipedEntityM
             val decorations =
                 armorHead.addChild("decorations", ModelPartBuilder.create(), ModelTransform.origin(0.0f, 0.0f, 0.0f))
 
-            val cube_r4 = decorations.addChild(
+            decorations.addChild(
                 "cube_r4",
                 ModelPartBuilder.create().uv(112, 0)
                     .cuboid(-1.0f, -6.0f, -1.25f, 2.0f, 7.0f, 3.0f, Dilation(0.0f)),
                 ModelTransform.of(0.0f, -4.0f, -5.0f, -0.3054f, 0.0f, 0.0f)
             )
 
-            val cube_r5 = decorations.addChild(
+            decorations.addChild(
                 "cube_r5",
                 ModelPartBuilder.create().uv(82, 25)
                     .cuboid(-4.25f, -7.5f, -7.25f, 4.0f, 4.0f, 1.0f, Dilation(0.0f)),
                 ModelTransform.of(0.0f, 0.0f, 0.0f, -0.3054f, 0.1309f, 0.0f)
             )
+
             return TexturedModelData.of(meshDefinition, 128, 128)
         }
     }
-
-
-
 }

@@ -1,4 +1,4 @@
-package dev.sterner.stone_mask
+package dev.sterner.stone_mask.client
 
 import net.minecraft.client.model.ModelPart
 import net.minecraft.client.render.entity.animation.AnimationDefinition
@@ -7,6 +7,7 @@ import net.minecraft.client.render.entity.animation.Transformation
 import net.minecraft.entity.AnimationState
 import net.minecraft.util.math.MathHelper
 import org.joml.Vector3f
+import kotlin.collections.iterator
 
 class StoneMaskKeyframeAnimation(
     private val definition: AnimationDefinition,
@@ -18,9 +19,10 @@ class StoneMaskKeyframeAnimation(
             val entries = mutableListOf<Entry>()
             for ((boneName, channels) in definition.boneAnimations()) {
                 val part = lookup.apply(boneName)
-                    ?: throw IllegalArgumentException("Cannot animate $boneName, which does not exist in model")
-                for (channel in channels) {
-                    entries.add(Entry(part, channel.target(), channel.keyframes()))
+                if (part != null) {
+                    for (channel in channels) {
+                        entries.add(Entry(part, channel.target(), channel.keyframes()))
+                    }
                 }
             }
             return StoneMaskKeyframeAnimation(definition, entries.toList())
@@ -30,7 +32,6 @@ class StoneMaskKeyframeAnimation(
     fun apply(animationState: AnimationState, age: Float) {
         animationState.run { state ->
             val ms = state.getTimeInMilliseconds(age)
-            println("[StoneMask] KeyframeAnim.apply ms=$ms")
             apply(ms, 1.0f)
         }
     }

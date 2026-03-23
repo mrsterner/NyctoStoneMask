@@ -1,5 +1,9 @@
 package dev.sterner
 
+import dev.sterner.network.StoneMaskNetworkHandler
+import dev.sterner.registry.NSMItems
+import dev.sterner.stone_mask.client.StoneMaskArmorRenderer
+import dev.sterner.stone_mask.client.StoneMaskModel
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.client.rendering.v1.ArmorRenderer
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry
@@ -16,7 +20,7 @@ object NyctoStoneMaskClient : ClientModInitializer {
 			{ context ->
 				StoneMaskArmorRenderer(context, EquipmentSlot.HEAD)
 			},
-			ModItems.STONE_MASK
+			NSMItems.STONE_MASK
 		)
 	}
 }

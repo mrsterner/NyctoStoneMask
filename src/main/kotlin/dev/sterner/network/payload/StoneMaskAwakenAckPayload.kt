@@ -1,7 +1,6 @@
-package dev.sterner.payload
+package dev.sterner.network.payload
 
 import dev.sterner.NyctoStoneMask
-import dev.sterner.payload.StoneMaskAwakenAckPayload.Companion.ID
 import io.netty.buffer.ByteBuf
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.network.codec.PacketCodec
@@ -11,7 +10,7 @@ import java.util.UUID
 
 
 data class StoneMaskAwakenAckPayload(
-    val playerUuid: UUID
+    val maskUuid: UUID
 ) : CustomPayload {
 
     companion object {
@@ -21,7 +20,7 @@ data class StoneMaskAwakenAckPayload(
         val CODEC: PacketCodec<ByteBuf, StoneMaskAwakenAckPayload> = object : PacketCodec<ByteBuf, StoneMaskAwakenAckPayload> {
             override fun decode(buffer: ByteBuf) = StoneMaskAwakenAckPayload(PacketByteBuf(buffer).readUuid())
             override fun encode(buffer: ByteBuf, payload: StoneMaskAwakenAckPayload) {
-                PacketByteBuf(buffer).writeUuid(payload.playerUuid)
+                PacketByteBuf(buffer).writeUuid(payload.maskUuid)
             }
         }
     }

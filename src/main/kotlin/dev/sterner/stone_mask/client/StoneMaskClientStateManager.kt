@@ -1,5 +1,6 @@
-package dev.sterner.stone_mask
+package dev.sterner.stone_mask.client
 
+import dev.sterner.stone_mask.StoneMaskPhase
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 import net.minecraft.client.MinecraftClient
@@ -16,16 +17,18 @@ object StoneMaskClientStateManager {
 
     private val states = mutableMapOf<UUID, ClientMaskState>()
 
-    fun getOrCreate(uuid: UUID): ClientMaskState = states.getOrPut(uuid) { ClientMaskState() }
+    fun getOrCreate(maskUuid: UUID): ClientMaskState = states.getOrPut(maskUuid) { ClientMaskState() }
 
-    fun setPhase(uuid: UUID, phase: StoneMaskPhase) {
-        val s = getOrCreate(uuid)
+    fun setPhase(maskUuid: UUID, phase: StoneMaskPhase) {
+        if (phase == StoneMaskPhase.INACTIVE) {
+            states.remove(maskUuid)
+            return
+        }
+        val s = getOrCreate(maskUuid)
         if (s.phase == phase) return
         s.phase = phase
         s.animationState.stop()
-        if (phase != StoneMaskPhase.INACTIVE) {
-            val tickCount = MinecraftClient.getInstance().player?.age ?: 0
-            s.animationState.start(tickCount)
-        }
+        val tickCount = MinecraftClient.getInstance().player?.age ?: 0
+        s.animationState.start(tickCount)
     }
 }

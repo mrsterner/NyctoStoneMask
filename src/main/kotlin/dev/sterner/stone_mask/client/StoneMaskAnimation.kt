@@ -1,4 +1,4 @@
-package dev.sterner
+package dev.sterner.stone_mask.client
 
 import net.minecraft.client.render.entity.animation.AnimationDefinition
 import net.minecraft.client.render.entity.animation.AnimationHelper

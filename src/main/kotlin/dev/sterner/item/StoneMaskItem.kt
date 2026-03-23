@@ -1,6 +1,7 @@
-package dev.sterner
+package dev.sterner.item
 
-import moriyashiine.nycto.api.NyctoAPI
+import dev.sterner.NyctoStoneMask
+import dev.sterner.registry.NSMComponents
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.player.PlayerEntity
@@ -19,15 +20,14 @@ class StoneMaskItem(settings: Settings) : Item(settings) {
     ) {
         super.inventoryTick(itemStack, serverLevel, entity, equipmentSlot)
 
-        if (entity is PlayerEntity) {
-            val current = getOwnerUUID(itemStack)
-            if (current != entity.uuid) {
-                itemStack.set(NyctoStoneMask.UUID_DATA, entity.uuid)
+        if (equipmentSlot == EquipmentSlot.HEAD && entity is PlayerEntity) {
+            if (getMaskUUID(itemStack) == null) {
+                itemStack.set(NSMComponents.UUID_DATA, UUID.randomUUID())
             }
         }
     }
 
     companion object {
-        fun getOwnerUUID(stack: ItemStack): UUID? = stack.get(NyctoStoneMask.UUID_DATA)
+        fun getMaskUUID(stack: ItemStack): UUID? = stack.get(NSMComponents.UUID_DATA)
     }
 }

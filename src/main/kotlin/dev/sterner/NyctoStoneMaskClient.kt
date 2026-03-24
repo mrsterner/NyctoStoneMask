@@ -22,8 +22,6 @@ object NyctoStoneMaskClient : ClientModInitializer {
 			id("stone_mask"),
 			CODEC
 		)
-		//SpecialModelTypes.ID_MAPPER.put(NyctoStoneMask.id("stone_mask"), StoneMaskItemRenderer.Unbaked.CODEC)
-		//println("### Keys: ${SpecialModelTypes.ID_MAPPER.entries.map { "${it.key} -> ${it.value}" }} ###")
 
 		EntityModelLayerRegistry.registerModelLayer(StoneMaskModel.MODEL_LAYERS.getModelData(EquipmentSlot.HEAD)) { StoneMaskModel.createBodyLayer() }
 		ArmorRenderer.register(

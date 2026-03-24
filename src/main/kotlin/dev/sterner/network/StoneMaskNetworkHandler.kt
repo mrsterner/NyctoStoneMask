@@ -40,17 +40,7 @@ object StoneMaskNetworkHandler {
 
         ServerPlayNetworking.registerGlobalReceiver(StoneMaskAwakenAckPayload.Companion.ID) { payload, context ->
             val player: ServerPlayerEntity = context.player()
-/*
-            val damageAmount = 12.0
 
-            val damageSource = player.entityWorld.damageSources.magic()
-            player.damage(player.entityWorld, damageSource, damageAmount.toFloat())
-
-            if (!player.isDead) {
-                player.addStatusEffect(StatusEffectInstance(ModStatusEffects.VAMPIRISM, 30 * 20))
-            }
-
- */
         }
     }
 

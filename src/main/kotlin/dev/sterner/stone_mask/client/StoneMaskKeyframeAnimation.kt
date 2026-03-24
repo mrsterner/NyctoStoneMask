@@ -1,6 +1,7 @@
 package dev.sterner.stone_mask.client
 
 import net.minecraft.client.model.ModelPart
+import net.minecraft.client.render.entity.animation.Animation
 import net.minecraft.client.render.entity.animation.AnimationDefinition
 import net.minecraft.client.render.entity.animation.Keyframe
 import net.minecraft.client.render.entity.animation.Transformation

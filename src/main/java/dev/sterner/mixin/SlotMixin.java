@@ -21,7 +21,6 @@ public class SlotMixin {
     @Inject(method = "canTakeItems", at = @At("HEAD"), cancellable = true)
     private void nycto_stone_mask$canTakeItems(PlayerEntity playerEntity, CallbackInfoReturnable<Boolean> cir) {
         if (!(inventory instanceof PlayerInventory)) return;
-        // index 39 is the helmet slot in PlayerInventory
         if (index != 39) return;
         ItemStack helmetStack = inventory.getStack(index);
         if (StoneMaskHelper.INSTANCE.isStackLocked(helmetStack)) {

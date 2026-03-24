@@ -3,22 +3,15 @@ package dev.sterner.event
 import dev.sterner.item.StoneMaskItem
 import dev.sterner.registry.NSMItems
 import dev.sterner.stone_mask.StoneMaskStateManager
-import moriyashiine.nycto.api.init.NyctoRegistries
-import moriyashiine.nycto.common.init.ModItems
 import moriyashiine.nycto.common.tag.ModEntityTypeTags
-import net.fabricmc.fabric.api.entity.event.v1.ServerEntityCombatEvents
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents
-import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import net.fabricmc.fabric.api.loot.v3.LootTableEvents
 import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.damage.DamageSource
-import net.minecraft.entity.passive.SheepEntity
 import net.minecraft.loot.LootPool
 import net.minecraft.loot.LootTables
-import net.minecraft.loot.condition.RandomChanceLootCondition
 import net.minecraft.loot.entry.EmptyEntry
 import net.minecraft.loot.entry.ItemEntry
 import net.minecraft.loot.provider.number.ConstantLootNumberProvider
@@ -28,7 +21,7 @@ object StoneMaskEvents {
 
     fun register() {
         registerTickEvent()
-        registerSheepKillEvent()
+        registerDamageGoodBloodsEvent()
         registerLootInjection()
     }
 
@@ -51,7 +44,7 @@ object StoneMaskEvents {
         }
     }
 
-    private fun registerSheepKillEvent() {
+    private fun registerDamageGoodBloodsEvent() {
         ServerLivingEntityEvents.AFTER_DAMAGE.register { living: LivingEntity, source: DamageSource, baseDamageTaken: Float, damageTaken: Float, blocked ->
             val sourceEntity = source.source
 
@@ -66,12 +59,13 @@ object StoneMaskEvents {
     }
 
     private fun registerLootInjection() {
+        val stoneMask = NSMItems.STONE_MASK
+
         LootTableEvents.MODIFY.register { key, tableBuilder, source, registries ->
             if (!source.isBuiltin) return@register
 
             val targets = setOf(
-                LootTables.JUNGLE_TEMPLE_CHEST,
-                LootTables.DESERT_PYRAMID_CHEST
+                LootTables.JUNGLE_TEMPLE_CHEST
             )
 
             if (key !in targets) return@register
@@ -80,7 +74,7 @@ object StoneMaskEvents {
                 .rolls(ConstantLootNumberProvider.create(1.0f))
                 .with(EmptyEntry.builder().weight(3))
                 .with(
-                    ItemEntry.builder(NSMItems.STONE_MASK)
+                    ItemEntry.builder(stoneMask)
                         .weight(1)
                 )
                 .build()

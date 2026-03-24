@@ -2,6 +2,7 @@ package dev.sterner.stone_mask.client
 
 import dev.sterner.NyctoStoneMask
 import dev.sterner.item.StoneMaskItem
+import dev.sterner.mixin.AnimationAccessor
 import dev.sterner.stone_mask.StoneMaskPhase
 import net.fabricmc.fabric.api.client.rendering.v1.ArmorRenderer
 import net.minecraft.client.render.OverlayTexture
@@ -9,6 +10,7 @@ import net.minecraft.client.render.RenderLayers
 import net.minecraft.client.render.command.OrderedRenderCommandQueue
 import net.minecraft.client.render.command.RenderCommandQueue
 import net.minecraft.client.render.entity.EntityRendererFactory
+import net.minecraft.client.render.entity.animation.Animation
 import net.minecraft.client.render.entity.model.BipedEntityModel
 import net.minecraft.client.render.entity.state.BipedEntityRenderState
 import net.minecraft.client.util.math.MatrixStack
@@ -22,10 +24,10 @@ class StoneMaskArmorRenderer(
 
     private val TEXTURE: Identifier = NyctoStoneMask.id("textures/armor/stone_mask.png")
 
-    private val inactiveAnim: StoneMaskKeyframeAnimation
-    private val awakenAnim: StoneMaskKeyframeAnimation
-    private val piercedAnim: StoneMaskKeyframeAnimation
-    private val retractAnim: StoneMaskKeyframeAnimation
+    private val inactiveAnim: Animation
+    private val awakenAnim: Animation
+    private val piercedAnim: Animation
+    private val retractAnim: Animation
 
     constructor(context: EntityRendererFactory.Context, slot: EquipmentSlot) : this(
         StoneMaskModel(context.getPart(StoneMaskModel.MODEL_LAYERS.getModelData(slot)))
@@ -34,10 +36,10 @@ class StoneMaskArmorRenderer(
     init {
         val defs = StoneMaskAnimation()
         val root = armorModel.rootPart
-        inactiveAnim = StoneMaskKeyframeAnimation.bake(root, defs.inactive)
-        awakenAnim   = StoneMaskKeyframeAnimation.bake(root, defs.awaken)
-        piercedAnim  = StoneMaskKeyframeAnimation.bake(root, defs.pierced)
-        retractAnim  = StoneMaskKeyframeAnimation.bake(root, defs.retract)
+        inactiveAnim = AnimationAccessor.of(root, defs.inactive)
+        awakenAnim   = AnimationAccessor.of(root, defs.awaken)
+        piercedAnim  = AnimationAccessor.of(root, defs.pierced)
+        retractAnim  = AnimationAccessor.of(root, defs.retract)
     }
 
     override fun render(

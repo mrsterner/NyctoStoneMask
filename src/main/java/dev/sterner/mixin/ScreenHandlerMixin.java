@@ -1,7 +1,9 @@
 package dev.sterner.mixin;
 
 import dev.sterner.stone_mask.StoneMaskHelper;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.SlotActionType;
 import org.spongepowered.asm.mixin.Mixin;
@@ -15,7 +17,8 @@ public class ScreenHandlerMixin {
     @Inject(method = "onSlotClick", at = @At("HEAD"), cancellable = true)
     private void nycto_stone_mask$onSlotClicked(int slotIndex, int button, SlotActionType actionType, PlayerEntity player, CallbackInfo ci) {
         if (!StoneMaskHelper.INSTANCE.isHelmetScreenSlot(slotIndex)) return;
-        if (StoneMaskHelper.INSTANCE.isMaskLocked(player)) {
+        ItemStack stack = player.getEquippedStack(EquipmentSlot.HEAD);
+        if (StoneMaskHelper.INSTANCE.isStackLocked(stack)) {
             ci.cancel();
         }
     }

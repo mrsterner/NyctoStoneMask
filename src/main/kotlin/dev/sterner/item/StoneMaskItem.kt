@@ -1,6 +1,5 @@
 package dev.sterner.item
 
-import dev.sterner.NyctoStoneMask
 import dev.sterner.registry.NSMComponents
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EquipmentSlot

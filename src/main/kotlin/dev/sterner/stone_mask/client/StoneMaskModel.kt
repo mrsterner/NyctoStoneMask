@@ -1,7 +1,6 @@
 package dev.sterner.stone_mask.client
 
 import dev.sterner.NyctoStoneMask
-import moriyashiine.nycto.common.Nycto
 import net.minecraft.client.model.*
 import net.minecraft.client.render.entity.model.BipedEntityModel
 import net.minecraft.client.render.entity.model.EntityModelLayer

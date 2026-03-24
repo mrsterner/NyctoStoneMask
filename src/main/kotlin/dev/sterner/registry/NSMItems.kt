@@ -3,8 +3,6 @@ package dev.sterner.registry
 import dev.sterner.NyctoStoneMask
 import dev.sterner.item.StoneMaskItem
 import moriyashiine.nycto.common.init.ModArmorMaterials
-import moriyashiine.nycto.common.init.ModItems
-import moriyashiine.strawberrylib.impl.common.StrawberryLib
 import net.minecraft.item.Item
 import net.minecraft.item.Items
 import net.minecraft.item.equipment.EquipmentType
@@ -26,6 +24,10 @@ class NSMItems {
 
         fun registerItem(name: String, factory: Function<Item.Settings, Item>, settings: Item.Settings): Item {
             return Items.register(RegistryKey.of<Item?>(RegistryKeys.ITEM, NyctoStoneMask.id(name)), factory, settings)
+        }
+
+        fun init() {
+
         }
     }
 }

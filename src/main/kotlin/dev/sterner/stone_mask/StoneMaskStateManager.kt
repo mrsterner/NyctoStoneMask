@@ -7,6 +7,7 @@ import moriyashiine.nycto.common.init.ModStatusEffects
 import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.ItemEntity
 import net.minecraft.entity.effect.StatusEffectInstance
+import net.minecraft.entity.effect.StatusEffects
 import net.minecraft.item.ItemStack
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.sound.SoundCategory
@@ -42,12 +43,12 @@ object StoneMaskStateManager {
                         val damageSource = player.entityWorld.damageSources.magic()
                         player.damage(player.entityWorld, damageSource, 12.0f)
                         if (!player.isDead) {
-                            player.addStatusEffect(StatusEffectInstance(ModStatusEffects.VAMPIRISM, 30 * 20))
+                            player.addStatusEffect(StatusEffectInstance(ModStatusEffects.VAMPIRISM, 20 * 20))
+                            player.addStatusEffect(StatusEffectInstance(StatusEffects.BLINDNESS, 20 * 20))
                         }
                     }
                 }
                 if (state.phaseTicks >= StoneMaskAnimationState.AWAKEN_DURATION_TICKS) {
-                    StoneMaskNetworkHandler.sendAwakenFinished(player, maskUuid)
                     advanceTo(player, maskUuid, state, StoneMaskPhase.PIERCED)
                 }
             }

@@ -18,6 +18,7 @@ object NyctoStoneMask : ModInitializer {
 		ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register { entries ->
 			entries.add(NSMItems.STONE_MASK)
 		}
+		NSMItems.init()
 		NSMSounds.init()
 		NSMComponents.init()
 		StoneMaskNetworkHandler.registerCommon()

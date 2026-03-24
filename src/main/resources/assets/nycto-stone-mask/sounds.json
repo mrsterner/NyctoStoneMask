@@ -1,0 +1,14 @@
+{
+  "stone_mask.activates": {
+    "sounds": ["nycto-stone-mask:stone_mask/stone_mask_activates"]
+  },
+  "stone_mask.claws": {
+    "sounds": ["nycto-stone-mask:stone_mask/stone_mask_claws"]
+  },
+  "stone_mask.pierce": {
+    "sounds": ["nycto-stone-mask:stone_mask/stone_mask_pierce"]
+  },
+  "stone_mask.retract": {
+    "sounds": ["nycto-stone-mask:stone_mask/stone_mask_retract"]
+  }
+}

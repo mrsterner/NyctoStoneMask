@@ -4,7 +4,6 @@ import com.mojang.serialization.MapCodec
 import dev.sterner.NyctoStoneMask
 import net.minecraft.client.render.OverlayTexture
 import net.minecraft.client.render.RenderLayers
-import net.minecraft.client.render.block.entity.SkullBlockEntityModel.SkullModelState
 import net.minecraft.client.render.command.OrderedRenderCommandQueue
 import net.minecraft.client.render.entity.state.BipedEntityRenderState
 import net.minecraft.client.render.item.model.special.SimpleSpecialModelRenderer
@@ -17,10 +16,8 @@ import java.util.function.Consumer
 
 class StoneMaskItemRenderer(
     private val model: StoneMaskModel<BipedEntityRenderState>,
-    private val inactiveAnim: StoneMaskKeyframeAnimation
+    private val inactiveAnim: StoneMaskKeyframeAnimation,
 ) : SimpleSpecialModelRenderer {
-
-
 
     private val TEXTURE = NyctoStoneMask.id("textures/armor/stone_mask.png")
 
@@ -38,8 +35,12 @@ class StoneMaskItemRenderer(
 
         matrices.push()
 
+        model.resetTransforms()
+
         val dummyState = BipedEntityRenderState()
         model.setAngles(dummyState)
+
+        inactiveAnim.apply(0L, 1.0f)
 
         queue.submitModelPart(
             model.rootPart,
@@ -60,19 +61,15 @@ class StoneMaskItemRenderer(
 
     override fun collectVertices(consumer: Consumer<Vector3fc?>?) {
         val lv = MatrixStack()
-        //lv.translate(0.5f, 0.0f, 0.5f)
-        //lv.scale(-1.0f, -1.0f, 1.0f)
-
+        model.resetTransforms()
+        inactiveAnim.apply(0L, 1.0f)
         model.getRootPart().collectVertices(lv, consumer)
     }
 
     class Unbaked : SpecialModelRenderer.Unbaked {
         override fun bake(context: SpecialModelRenderer.BakeContext): SpecialModelRenderer<*>? {
-
             val layer = StoneMaskModel.MODEL_LAYERS.getModelData(EquipmentSlot.HEAD)
-
             val modelPart = context.entityModelSet().getModelPart(layer)
-
             val model = StoneMaskModel<BipedEntityRenderState>(modelPart)
             val defs = StoneMaskAnimation()
             val inactiveAnim = StoneMaskKeyframeAnimation.bake(model.rootPart, defs.inactive)

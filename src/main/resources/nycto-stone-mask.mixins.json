@@ -4,7 +4,8 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "PlayerInventoryMixin",
-    "ScreenHandlerMixin"
+    "ScreenHandlerMixin",
+    "SlotMixin"
   ],
   "injectors": {
     "defaultRequire": 1
@@ -13,6 +14,5 @@
     "requireAnnotations": true
   },
   "client": [
-    "MixinSpecialModelTypes"
   ]
 }

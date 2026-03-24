@@ -17,8 +17,14 @@ class StoneMaskModel<T : BipedEntityRenderState>(root: ModelPart) : BipedEntityM
 
     override fun setAngles(bipedEntityRenderState: T) {
         super.setAngles(bipedEntityRenderState)
-        armorHead.pitch = Math.toRadians(bipedEntityRenderState.pitch.toDouble()).toFloat()
-        armorHead.yaw = Math.toRadians(bipedEntityRenderState.relativeHeadYaw.toDouble()).toFloat()
+
+        armorHead.pitch = head.pitch
+        armorHead.yaw = head.yaw
+        armorHead.roll = head.roll
+        armorHead.originX = head.originX
+        armorHead.originY = head.originY
+        armorHead.originZ = head.originZ
+
         animationApplier?.invoke()
     }
 

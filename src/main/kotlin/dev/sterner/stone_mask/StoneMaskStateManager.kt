@@ -2,10 +2,12 @@ package dev.sterner.stone_mask
 
 import dev.sterner.item.StoneMaskItem
 import dev.sterner.network.StoneMaskNetworkHandler
+import dev.sterner.registry.NSMSounds
 import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.ItemEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.server.network.ServerPlayerEntity
+import net.minecraft.sound.SoundCategory
 import net.minecraft.util.math.Vec3d
 import java.util.UUID
 
@@ -29,6 +31,11 @@ object StoneMaskStateManager {
 
         when (state.phase) {
             StoneMaskPhase.AWAKEN -> {
+                when (state.phaseTicks) {
+                    1 -> playSound(player, NSMSounds.STONE_MASK_ACTIVATES)
+                    15 -> playSound(player, NSMSounds.STONE_MASK_CLAWS)
+                    26 -> playSound(player, NSMSounds.STONE_MASK_PIERCE)
+                }
                 if (state.phaseTicks >= StoneMaskAnimationState.AWAKEN_DURATION_TICKS) {
                     StoneMaskNetworkHandler.sendAwakenFinished(player, maskUuid)
                     advanceTo(player, maskUuid, state, StoneMaskPhase.PIERCED)
@@ -82,6 +89,10 @@ object StoneMaskStateManager {
         if (next == StoneMaskPhase.INACTIVE) {
             popMaskOff(player)
         }
+
+        if (next == StoneMaskPhase.RETRACT) {
+            playSound(player, NSMSounds.STONE_MASK_RETRACT)
+        }
     }
 
     private fun popMaskOff(player: ServerPlayerEntity) {
@@ -104,5 +115,18 @@ object StoneMaskStateManager {
             (player.random.nextDouble() - 0.5) * 0.1
         )
         player.entityWorld.spawnEntity(itemEntity)
+    }
+
+    private fun playSound(player: ServerPlayerEntity, sound: net.minecraft.sound.SoundEvent) {
+        player.entityWorld.playSound(
+            null,
+            player.x,
+            player.y,
+            player.z,
+            sound,
+            SoundCategory.PLAYERS,
+            1.0f,
+            1.0f
+        )
     }
 }

@@ -38,7 +38,7 @@ class StoneMaskKeyframeAnimation(
 
     fun applyStatic() = apply(0L, 1.0f)
 
-    private fun apply(elapsedMs: Long, scale: Float) {
+    fun apply(elapsedMs: Long, scale: Float) {
         val elapsedSeconds = getElapsedSeconds(elapsedMs)
         val vec = Vector3f()
         for (entry in entries) {

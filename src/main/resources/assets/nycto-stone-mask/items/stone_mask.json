@@ -1,8 +1,8 @@
 {
   "model": {
     "type": "minecraft:special",
-    "base": "minecraft:item/iron_helmet",
-    "special": {
+    "base": "nycto-stone-mask:item/stone_mask_base",
+    "model": {
       "type": "nycto-stone-mask:stone_mask"
     }
   }

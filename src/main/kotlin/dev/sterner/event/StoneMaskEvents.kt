@@ -53,9 +53,14 @@ object StoneMaskEvents {
     private fun registerSheepKillEvent() {
         ServerLivingEntityEvents.AFTER_DAMAGE.register { living: LivingEntity, source: DamageSource, baseDamageTaken: Float, damageTaken: Float, blocked ->
             val sourceEntity = source.source
+            if (sourceEntity != null) {
+                println("Player: " + sourceEntity.type)
+            }
+            println("Living: " + living.type)
             if (sourceEntity is ServerPlayerEntity) {
 
                 if (living.type.isIn(ModEntityTypeTags.HAS_QUALITY_BLOOD)) {
+                    println("HasKill")
                     StoneMaskStateManager.triggerAwaken(sourceEntity)
                 }
             }

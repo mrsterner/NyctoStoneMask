@@ -1,7 +1,6 @@
 package dev.sterner
 
 import com.mojang.serialization.MapCodec
-import dev.sterner.mask.client.StoneMaskItemRenderer
 import dev.sterner.network.StoneMaskNetworkHandler
 import dev.sterner.registry.NSMItems
 import dev.sterner.stone_mask.client.StoneMaskArmorRenderer
@@ -21,7 +20,8 @@ object NyctoStoneMaskClient : ClientModInitializer {
 
 		StoneMaskNetworkHandler.registerClient()
 
-		SpecialModelTypes.ID_MAPPER.put(NyctoStoneMask.id("stone_mask"), StoneMaskItemRenderer.Unbaked.CODEC)
+		//SpecialModelTypes.ID_MAPPER.put(NyctoStoneMask.id("stone_mask"), StoneMaskItemRenderer.Unbaked.CODEC)
+		//println("### Keys: ${SpecialModelTypes.ID_MAPPER.entries.map { "${it.key} -> ${it.value}" }} ###")
 
 		EntityModelLayerRegistry.registerModelLayer(StoneMaskModel.MODEL_LAYERS.getModelData(EquipmentSlot.HEAD)) { StoneMaskModel.createBodyLayer() }
 		ArmorRenderer.register(

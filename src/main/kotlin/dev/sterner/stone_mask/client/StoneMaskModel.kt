@@ -1,5 +1,6 @@
 package dev.sterner.stone_mask.client
 
+import dev.sterner.NyctoStoneMask
 import moriyashiine.nycto.common.Nycto
 import net.minecraft.client.model.*
 import net.minecraft.client.render.entity.model.BipedEntityModel
@@ -28,7 +29,7 @@ class StoneMaskModel<T : BipedEntityRenderState>(root: ModelPart) : BipedEntityM
             "chestplate",
             "leggings",
             "boots"
-        ).map({ s -> EntityModelLayer(Nycto.id("stone_mask"), s) })
+        ).map({ s -> EntityModelLayer(NyctoStoneMask.id("stone_mask"), s) })
 
         fun createBodyLayer(): TexturedModelData {
             val meshDefinition = getModelData(Dilation.NONE, 0.0f)

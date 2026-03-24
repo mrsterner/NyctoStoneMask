@@ -16,12 +16,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class SlotMixin {
 
     @Shadow @Final public net.minecraft.inventory.Inventory inventory;
+    @Shadow public int index;
 
     @Inject(method = "canTakeItems", at = @At("HEAD"), cancellable = true)
     private void nycto_stone_mask$canTakeItems(PlayerEntity playerEntity, CallbackInfoReturnable<Boolean> cir) {
-        if (!(inventory instanceof PlayerInventory playerInventory)) return;
-
-        ItemStack helmetStack = playerInventory.getStack(39);
+        if (!(inventory instanceof PlayerInventory)) return;
+        // index 39 is the helmet slot in PlayerInventory
+        if (index != 39) return;
+        ItemStack helmetStack = inventory.getStack(index);
         if (StoneMaskHelper.INSTANCE.isStackLocked(helmetStack)) {
             cir.setReturnValue(false);
         }

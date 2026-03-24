@@ -14,7 +14,8 @@ public class ScreenHandlerMixin {
 
     @Inject(method = "onSlotClick", at = @At("HEAD"), cancellable = true)
     private void nycto_stone_mask$onSlotClicked(int slotIndex, int button, SlotActionType actionType, PlayerEntity player, CallbackInfo ci) {
-        if (StoneMaskHelper.INSTANCE.isHelmetScreenSlot(slotIndex) && StoneMaskHelper.INSTANCE.isMaskLocked(player)) {
+        if (!StoneMaskHelper.INSTANCE.isHelmetScreenSlot(slotIndex)) return;
+        if (StoneMaskHelper.INSTANCE.isMaskLocked(player)) {
             ci.cancel();
         }
     }

@@ -19,8 +19,7 @@ public class PlayerInventoryMixin {
     @Inject(method = "setStack", at = @At("HEAD"), cancellable = true)
     private void nycto_stone_mask$onSetStack(int slot, ItemStack stack, CallbackInfo ci) {
         if (!StoneMaskHelper.INSTANCE.isHelmetSlot(slot)) return;
-
-        var current = player.getInventory().getStack(slot);
+        ItemStack current = player.getInventory().getStack(slot);
         if (StoneMaskHelper.INSTANCE.isStackLocked(current)) {
             ci.cancel();
         }

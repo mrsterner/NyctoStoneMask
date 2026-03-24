@@ -19,6 +19,7 @@ import net.minecraft.entity.passive.SheepEntity
 import net.minecraft.loot.LootPool
 import net.minecraft.loot.LootTables
 import net.minecraft.loot.condition.RandomChanceLootCondition
+import net.minecraft.loot.entry.EmptyEntry
 import net.minecraft.loot.entry.ItemEntry
 import net.minecraft.loot.provider.number.ConstantLootNumberProvider
 import net.minecraft.server.network.ServerPlayerEntity
@@ -75,16 +76,13 @@ object StoneMaskEvents {
 
             if (key !in targets) return@register
 
-            val entry = ItemEntry.builder(NSMItems.STONE_MASK)
-                .weight(1)
-                .build()
-
             val pool = LootPool.builder()
                 .rolls(ConstantLootNumberProvider.create(1.0f))
-                .conditionally(
-                    RandomChanceLootCondition.builder(0.08f)
+                .with(EmptyEntry.builder().weight(3))
+                .with(
+                    ItemEntry.builder(NSMItems.STONE_MASK)
+                        .weight(1)
                 )
-                .with(entry)
                 .build()
 
             tableBuilder.pool(pool)

@@ -13,6 +13,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.client.MinecraftClient
+import net.minecraft.entity.damage.DamageSource
 import net.minecraft.entity.effect.StatusEffectInstance
 import net.minecraft.server.network.ServerPlayerEntity
 import java.util.UUID
@@ -40,7 +41,14 @@ object StoneMaskNetworkHandler {
         ServerPlayNetworking.registerGlobalReceiver(StoneMaskAwakenAckPayload.Companion.ID) { payload, context ->
             val player: ServerPlayerEntity = context.player()
 
-            player.addStatusEffect(StatusEffectInstance(ModStatusEffects.VAMPIRISM, 30 * 20))
+            val damageAmount = 12.0
+
+            val damageSource = player.entityWorld.damageSources.magic()
+            player.damage(player.entityWorld, damageSource, damageAmount.toFloat())
+
+            if (!player.isDead) {
+                player.addStatusEffect(StatusEffectInstance(ModStatusEffects.VAMPIRISM, 30 * 20))
+            }
         }
     }
 

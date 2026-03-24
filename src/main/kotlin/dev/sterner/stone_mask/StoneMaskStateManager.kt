@@ -3,8 +3,10 @@ package dev.sterner.stone_mask
 import dev.sterner.item.StoneMaskItem
 import dev.sterner.network.StoneMaskNetworkHandler
 import dev.sterner.registry.NSMSounds
+import moriyashiine.nycto.common.init.ModStatusEffects
 import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.ItemEntity
+import net.minecraft.entity.effect.StatusEffectInstance
 import net.minecraft.item.ItemStack
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.sound.SoundCategory
@@ -34,7 +36,15 @@ object StoneMaskStateManager {
                 when (state.phaseTicks) {
                     1 -> playSound(player, NSMSounds.STONE_MASK_ACTIVATES)
                     15 -> playSound(player, NSMSounds.STONE_MASK_CLAWS)
-                    26 -> playSound(player, NSMSounds.STONE_MASK_PIERCE)
+                    26 -> {
+                        playSound(player, NSMSounds.STONE_MASK_PIERCE)
+
+                        val damageSource = player.entityWorld.damageSources.magic()
+                        player.damage(player.entityWorld, damageSource, 12.0f)
+                        if (!player.isDead) {
+                            player.addStatusEffect(StatusEffectInstance(ModStatusEffects.VAMPIRISM, 30 * 20))
+                        }
+                    }
                 }
                 if (state.phaseTicks >= StoneMaskAnimationState.AWAKEN_DURATION_TICKS) {
                     StoneMaskNetworkHandler.sendAwakenFinished(player, maskUuid)
@@ -86,12 +96,14 @@ object StoneMaskStateManager {
         state.phaseTicks = 0
         StoneMaskNetworkHandler.sendPhaseUpdate(player, maskUuid, next)
 
-        if (next == StoneMaskPhase.INACTIVE) {
-            popMaskOff(player)
-        }
-
-        if (next == StoneMaskPhase.RETRACT) {
-            playSound(player, NSMSounds.STONE_MASK_RETRACT)
+        when (next) {
+            StoneMaskPhase.RETRACT -> {
+                playSound(player, NSMSounds.STONE_MASK_RETRACT)
+            }
+            StoneMaskPhase.INACTIVE -> {
+                popMaskOff(player)
+            }
+            else -> {}
         }
     }
 

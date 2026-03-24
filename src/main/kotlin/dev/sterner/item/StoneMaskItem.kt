@@ -21,7 +21,7 @@ class StoneMaskItem(settings: Settings) : Item(settings) {
         super.inventoryTick(itemStack, serverLevel, entity, equipmentSlot)
 
         if (equipmentSlot == EquipmentSlot.HEAD && entity is PlayerEntity) {
-            if (getMaskUUID(itemStack) != null) {
+            if (getMaskUUID(itemStack) == null) {
                 itemStack.set(NSMComponents.UUID_DATA, UUID.randomUUID())
             }
         }

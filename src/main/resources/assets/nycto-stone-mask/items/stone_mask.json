@@ -1,9 +1,6 @@
 {
   "model": {
-    "type": "minecraft:special",
-    "base": "nycto-stone-mask:item/stone_mask_base",
-    "model": {
-      "type": "nycto-stone-mask:stone_mask"
-    }
+    "type": "minecraft:model",
+    "model": "nycto-stone-mask:item/stone_mask"
   }
 }

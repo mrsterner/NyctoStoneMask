@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "nycto-stone-mask:item/stone_mask"
+  }
+}

@@ -20,6 +20,49 @@ import net.minecraft.item.ItemStack
 import org.joml.Vector3fc
 import java.util.function.Consumer
 
+/* For a special render, not used right now
+{
+  "parent": "minecraft:item/iron_helmet",
+  "display": {
+    "gui": {
+      "rotation": [20, 145, 180],
+      "translation": [13, -9, 0],
+      "scale": [1, 1, 1]
+    },
+    "fixed": {
+      "rotation": [0, 180, 0],
+      "translation": [0, 4, 0],
+      "scale": [1, 1, 1]
+    },
+    "on_shelf": {
+      "rotation": [0, 0, 0],
+      "translation": [0, 8, 0],
+      "scale": [2, 2, 2]
+    },
+    "ground": {
+      "rotation": [0, 0, 0],
+      "translation": [8, 3, 8],
+      "scale": [0.5, 0.5, 0.5]
+    },
+    "thirdperson_righthand": {
+      "rotation": [45, 45, 180],
+      "translation": [2, -14, 2],
+      "scale": [0.75, 0.75, 0.75]
+    }
+  }
+}
+ */
+/*
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "nycto-stone-mask:item/stone_mask_base",
+    "model": {
+      "type": "nycto-stone-mask:stone_mask"
+    }
+  }
+}
+ */
 class StoneMaskItemRenderer(
     private val model: StoneMaskModel<BipedEntityRenderState>,
     private val inactiveAnim: Animation,
